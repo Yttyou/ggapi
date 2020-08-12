@@ -1,0 +1,42 @@
+2020-08-11 11:34:52,845 - test_api.py[line:143] - INFO: 用例前置：将账号修改密码还原为'aaa111'
+2020-08-11 11:34:52,845 - api_request.py[line:36] - INFO: 本次请求头：
+2020-08-11 11:34:52,845 - api_request.py[line:37] - INFO: {'Authorization': 'Bear E0BFB7F8B55B7293F39C641D76790F75D25A34B9C2A87DB380ECD7F7115882EC', 'clientKey': 'D951406E0C41E664DBA079F6E0D066F9D25A34B9C2A87DB380ECD7F7115882EC', 'random': '54sZrQmTFCLvNkOgy9xjq7GHpcS2U1RK', 'lng': '116.397128', 'lat': '39.916527', 'mac': 'PrU2qojbpAfOmxJ', 'deviceinfo': 'iOS 11.3', 'ip': '223.75.238.173', 'appversion': '1.0.2', 'apppt': '2', 'isNoEncryption': '1', 'channelId': '1'}
+2020-08-11 11:34:53,264 - api_request.py[line:47] - INFO: post接口请求成功！
+2020-08-11 11:34:53,264 - test_api.py[line:148] - INFO: 本次请求响应结果如下：
+2020-08-11 11:34:53,264 - test_api.py[line:149] - INFO: {'result': True, 'code': 2000000, 'ret': None, 'message': '成功'}
+2020-08-11 11:34:53,264 - test_api.py[line:18] - INFO: =================================================================
+2020-08-11 11:34:53,264 - test_api.py[line:19] - INFO: api接口测试场景：手机号登录-正确场景
+2020-08-11 11:34:53,264 - test_api.py[line:20] - INFO: ===请求参数为：
+2020-08-11 11:34:53,265 - test_api.py[line:21] - INFO: {'url': 'https://ggapi.qwdj.com/newapi/api/user/login', 'parame': {'account_type': '1', 'phonenum': '13297025059', 'password': 'aaa111'}, 'Method': 'post', 'expect': 2000000}
+2020-08-11 11:34:53,265 - test_api.py[line:22] - INFO: TOKEN的值：
+2020-08-11 11:34:53,265 - test_api.py[line:23] - INFO: KEYS的值：
+2020-08-11 11:34:53,265 - api_request.py[line:36] - INFO: 本次请求头：
+2020-08-11 11:34:53,265 - api_request.py[line:37] - INFO: {'Authorization': 'Bear E0BFB7F8B55B7293F39C641D76790F75D25A34B9C2A87DB380ECD7F7115882EC', 'clientKey': 'D951406E0C41E664DBA079F6E0D066F9D25A34B9C2A87DB380ECD7F7115882EC', 'random': 'zy5WNU5kgpHETe0jD1i0busxdLBra4F0', 'lng': '116.397128', 'lat': '39.916527', 'mac': 'p5mWtiKqcIBbMEV', 'deviceinfo': 'iOS 11.3', 'ip': '223.75.238.173', 'appversion': '1.0.2', 'apppt': '2', 'isNoEncryption': '1', 'channelId': '1'}
+2020-08-11 11:34:53,757 - api_request.py[line:47] - INFO: post接口请求成功！
+2020-08-11 11:34:53,757 - test_api.py[line:26] - INFO: 本次请求响应结果如下：
+2020-08-11 11:34:53,757 - test_api.py[line:27] - INFO: {'result': True, 'code': 2000000, 'ret': {'id': 18959573, 'uuid': 18959573, 'jpush_register_id': None, 'netease_im_token': '123456', 'nick_name': '更改昵称-嶩', 'avatar': 'https://static.gg6.com.cn/up/default_avatar.png', 'bg_img': None, 'sign': None, 'phonenum': 'LaKjE5jenWpF88E1E5gTmw==', 'gender': 0, 'audio': None, 'audio_duration': 0, 'user_img': None, 'video': None, 'interest_ids': None, 'work_type': None, 'height': None, 'weight': '62.00', 'country': None, 'province': None, 'city': None, 'address': None, 'birthday': None, 'language': None, 'p_user_id': None, 'is_system': 0, 'vip_exp': '0.00', 'vip_level_id': None, 'noble_exp': '0.00', 'noble_level_id': None, 'channel_id': 1, 'last_online_at': None, 'is_open_push': 0, 'mac': None, 'user_last_login_appid': 1, 'created_at': '2020-08-07 17:52:19', 'account_type': '1', 'status_str': '有效', 'work_type_str': None, 'gender_str': '保密', 'is_new': '1', 'constellation': '保密', 'age': '保密', 'user_img_arr': ['https://static.gg6.com.cn/up/default_user_img.png'], 'token': 'BE0B260EBBA637BE94EE569920A1CF8147F91DB40EFC6A22350ECA5C953C4742', 'key': '7CEBEC695134CE4074499010EB0BFCEF47F91DB40EFC6A22350ECA5C953C4742', 'secret': '5268AA2A3E5D25F2', 'mount': None, 'avatar_frame': None, 'seat_frame': None, 'medal': None, 'join_effect': None, 'vip_level': None, 'noble_level': None, 'is_player': 0}, 'message': '成功'}
+2020-08-11 11:34:53,757 - test_api.py[line:154] - INFO: code断言成功.
+2020-08-11 11:34:53,767 - test_api.py[line:236] - INFO: 获取到ID的值为'18959573'
+2020-08-11 11:34:53,768 - test_api.py[line:18] - INFO: =================================================================
+2020-08-11 11:34:53,769 - test_api.py[line:19] - INFO: api接口测试场景：根据id获取用户信息-id存在
+2020-08-11 11:34:53,769 - test_api.py[line:20] - INFO: ===请求参数为：
+2020-08-11 11:34:53,769 - test_api.py[line:21] - INFO: {'url': 'https://ggapi.qwdj.com/newapi/api/user/getById', 'parame': {'id': 18959573}, 'Method': 'get', 'expect': 2000000}
+2020-08-11 11:34:53,769 - test_api.py[line:22] - INFO: TOKEN的值：BE0B260EBBA637BE94EE569920A1CF8147F91DB40EFC6A22350ECA5C953C4742
+2020-08-11 11:34:53,770 - test_api.py[line:23] - INFO: KEYS的值：7CEBEC695134CE4074499010EB0BFCEF47F91DB40EFC6A22350ECA5C953C4742
+2020-08-11 11:34:53,770 - api_request.py[line:36] - INFO: 本次请求头：
+2020-08-11 11:34:53,770 - api_request.py[line:37] - INFO: {'Authorization': 'Bear BE0B260EBBA637BE94EE569920A1CF8147F91DB40EFC6A22350ECA5C953C4742', 'clientKey': '7CEBEC695134CE4074499010EB0BFCEF47F91DB40EFC6A22350ECA5C953C4742', 'random': 'EVIXuUOWCGfR0nHwacpymQKdZtBAzqoe', 'lng': '116.397128', 'lat': '39.916527', 'mac': '1j8YhxLt1ZTdc3E', 'deviceinfo': 'iOS 11.3', 'ip': '223.75.238.173', 'appversion': '1.0.2', 'apppt': '2', 'isNoEncryption': '1', 'channelId': '1'}
+2020-08-11 11:34:53,929 - test_api.py[line:26] - INFO: 本次请求响应结果如下：
+2020-08-11 11:34:53,929 - test_api.py[line:27] - INFO: {'result': True, 'code': 2000000, 'ret': {'id': 18959573, 'uuid': 18959573, 'jpush_register_id': None, 'netease_im_token': '123456', 'nick_name': '更改昵称-嶩', 'avatar': 'https://static.gg6.com.cn/up/default_avatar.png', 'bg_img': None, 'sign': None, 'phonenum': '13297025059', 'gender': 0, 'audio': None, 'audio_duration': 0, 'user_img': None, 'video': None, 'interest_ids': None, 'work_type': None, 'height': None, 'weight': '62.00', 'country': None, 'province': None, 'city': None, 'address': None, 'birthday': None, 'language': None, 'p_user_id': None, 'is_system': 0, 'vip_exp': '0.00', 'vip_level_id': None, 'noble_exp': '0.00', 'noble_level_id': None, 'channel_id': 1, 'last_online_at': None, 'is_open_push': 0, 'mac': None, 'user_last_login_appid': 1, 'seq': 99, 'status': 1, 'created_at': '2020-08-07 17:52:19', 'updated_at': '2020-08-11 11:12:21', 'deleted_at': None, 'status_str': '有效', 'work_type_str': None, 'gender_str': '保密', 'is_new': '1', 'constellation': '保密', 'age': '保密', 'user_img_arr': ['https://static.gg6.com.cn/up/default_user_img.png']}, 'message': '成功'}
+2020-08-11 11:34:53,929 - test_api.py[line:240] - INFO: code断言成功.
+2020-08-11 11:34:53,939 - test_api.py[line:250] - INFO: 获取到ID的值为'18959573'
+2020-08-11 11:34:53,939 - test_api.py[line:18] - INFO: =================================================================
+2020-08-11 11:34:53,939 - test_api.py[line:19] - INFO: api接口测试场景：根据id获取用户信息-id不存在
+2020-08-11 11:34:53,939 - test_api.py[line:20] - INFO: ===请求参数为：
+2020-08-11 11:34:53,939 - test_api.py[line:21] - INFO: {'url': 'https://ggapi.qwdj.com/newapi/api/user/getById', 'parame': {'id': '800000'}, 'Method': 'get', 'expect': 2000000}
+2020-08-11 11:34:53,939 - test_api.py[line:22] - INFO: TOKEN的值：BE0B260EBBA637BE94EE569920A1CF8147F91DB40EFC6A22350ECA5C953C4742
+2020-08-11 11:34:53,939 - test_api.py[line:23] - INFO: KEYS的值：7CEBEC695134CE4074499010EB0BFCEF47F91DB40EFC6A22350ECA5C953C4742
+2020-08-11 11:34:53,939 - api_request.py[line:36] - INFO: 本次请求头：
+2020-08-11 11:34:53,939 - api_request.py[line:37] - INFO: {'Authorization': 'Bear BE0B260EBBA637BE94EE569920A1CF8147F91DB40EFC6A22350ECA5C953C4742', 'clientKey': '7CEBEC695134CE4074499010EB0BFCEF47F91DB40EFC6A22350ECA5C953C4742', 'random': 'AzQbvomYfxT1RLDeOIiKhdXWUMuc4N48', 'lng': '116.397128', 'lat': '39.916527', 'mac': 'ozECYQls8RPwi2J', 'deviceinfo': 'iOS 11.3', 'ip': '223.75.238.173', 'appversion': '1.0.2', 'apppt': '2', 'isNoEncryption': '1', 'channelId': '1'}
+2020-08-11 11:34:54,086 - test_api.py[line:26] - INFO: 本次请求响应结果如下：
+2020-08-11 11:34:54,086 - test_api.py[line:27] - INFO: {'result': True, 'code': 2000000, 'ret': None, 'message': '成功'}
+2020-08-11 11:34:54,086 - test_api.py[line:254] - INFO: code断言成功.
