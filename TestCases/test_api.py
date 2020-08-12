@@ -5,7 +5,7 @@ from Common import logger
 import logging
 import json
 from Common.api_request import ApiRequest
-from TestData.api_data import UserData,LiveRoomApi
+from TestData.api_data import UserData,LiveRoomApi,GiftApi,ChatRoomApi
 from TestData import api_data
 from Common import path_config
 
@@ -13,6 +13,7 @@ TOKEN = ''      # 用来存储token
 KEYS = ''       # 用来存储key
 ID = ''         # 用来存储用户id
 NICK_NAME = '更改昵称'  # 用来存储用户的昵称
+UUID = ''       # 用来存储UUID
 
 # 共用部分
 def share_request(titel, data):
@@ -636,6 +637,7 @@ class TestUserRelated:
             raise
 
 
+# 直播间
 class TestLiveRoom:
 
     # 首页直播间推荐列表
@@ -721,7 +723,7 @@ class TestLiveRoom:
             raise
 
     # 检查派单大厅列表展示及个数
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_031(self):
         titel = "检查派单大厅列表展示及个数"
         data = LiveRoomApi.api_data_031
@@ -734,12 +736,176 @@ class TestLiveRoom:
             logging.exception("code断言失败了！")
             raise
 
+# 聊天室相关
+class TestChatRoom:
+
+    # 根据条件获取聊天室信息
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", ChatRoomApi.api_data_032)
+    def test_api_032(self, data):
+        titel = "获取聊天室信息条件-{}".format(data["chat_title"])
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查聊天室信息")
+            gift_number = len(response["ret"]["data"])
+            if gift_number > 0:
+                one_gift_name = response["ret"]["data"][0]["name"]
+                logging.info("筛选后聊天室tab中有 {} 个聊天室，其中一个聊天室名称为 '{}'".format(gift_number, one_gift_name))
+            else:
+                logging.info("筛选后当前列表没有聊天室！")
+
+    # 默认展示聊天室信息
+    @pytest.mark.demo
+    def test_api_033(self):
+        titel = "默认展示聊天室信息"
+        data = ChatRoomApi.api_data_033
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查聊天室信息")
+            gift_number = len(response["ret"]["data"])
+            if gift_number > 0:
+                one_gift_name = response["ret"]["data"][0]["name"]
+                logging.info("聊天室tab中有 {} 个聊天室，其中一个聊天室名称为 '{}'".format(gift_number, one_gift_name))
+                global ID
+                ID = response["ret"]["data"][0]["id"]
+            else:
+                logging.info("当前列表没有聊天室！")
+
+    # 根据id获取聊天室信息
+    @pytest.mark.demo
+    def test_api_034(self):
+        titel = "根据id获取聊天室信息"
+        data = ChatRoomApi.api_data_034
+        data["parame"]["id"] = ID
+        logging.info("此时获取到的全局变量ID为：{}".format(ID))
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查搜索结果聊天室id是否正确")
+            try:
+                assert response['ret']["id"] == ID
+                logging.info("检查成功，通过搜索聊天室id功能正常")
+            except:
+                logging.exception("检查失败，通过聊天室id搜索功能异常！")
+                raise
+
+    # 加入聊天室-房间编号不存在或错误
+    @pytest.mark.demo
+    def test_api_035(self):
+        titel = "加入聊天室-房间编号不存在或错误"
+        data = ChatRoomApi.api_data_035
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 加入聊天室-房间编号存在
+    @pytest.mark.demo
+    def test_api_036(self):
+        titel = "加入聊天室-房间编号存在"
+        logging.info("前置条件：获取已经开了聊天室的id")
+        data = ChatRoomApi.api_data_036_a
+        response = share_request(titel, data)
+        global ID
+        ID = response['ret']['data'][0]['id']
+        data = ChatRoomApi.api_data_036_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量ID为：{}".format(ID))
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            title = response['ret']['ads'][0]['title']
+            logging.info("该聊天室的标题为 ‘{}’".format(title))
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 退出聊天室-已加入聊天室
+    @pytest.mark.demo
+    def test_api_037(self):
+        titel = "退出聊天室-已加入聊天室"
+        data = ChatRoomApi.api_data_037
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量ID为：{}".format(ID))
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 退出聊天室-聊天室不存在或不在房间中
+    @pytest.mark.demo
+    def test_api_038(self):
+        titel = "退出聊天室-聊天室不存在或不在房间中"
+        data = ChatRoomApi.api_data_038
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 退出聊天室-缺少聊天室id
+    @pytest.mark.demo
+    def test_api_039(self):
+        titel = "退出聊天室-缺少聊天室id"
+        data = ChatRoomApi.api_data_039
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
 
 
+# 礼物
+class TestGift:
 
-
-
-
+    # 获取礼物列表
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_050)
+    def test_api_050(self, data):
+        titel = "获取礼物列表-{}".format(data["api_title"])
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查礼物信息")
+            gift_number = len(response["ret"]["data"])
+            if gift_number >0 :
+                one_gift_name = response["ret"]["data"][0]["name"]
+                logging.info("礼物列表有 {} 个礼物，其中一个礼物名称为 '{}'".format(gift_number,one_gift_name))
+            else:
+                logging.info("当前礼物列表没有礼物！")
 
 
 

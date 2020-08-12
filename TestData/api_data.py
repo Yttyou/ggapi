@@ -362,7 +362,6 @@ class UserData:
                       "expect": 2003012,
                       }
 
-
 class LiveRoomApi:
 
     # 首页直播间推荐列表
@@ -405,3 +404,203 @@ class LiveRoomApi:
                     "Method": "post",
                     "expect": 2000000,
                     }
+
+class ChatRoomApi:
+    # 根据条件获取聊天室信息
+    api_data_032 = [{"url": api_url + "newapi/api/chatroom/getListByCon",
+                    "chat_title": "页码为2时",
+                     "parame": {"page":"2"
+                     },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/chatroom/getListByCon",
+                     "chat_title": "uuid/聊天室名，模糊搜索-83373403",
+                     "parame": {"search_word": "83373403"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/chatroom/getListByCon",
+                     "chat_title": "聊天室类型-情感",
+                     "parame": {"type": "31"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/chatroom/getListByCon",
+                     "chat_title": "聊天室类型-普通派单",
+                     "parame": {"type": "41"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/chatroom/getListByCon",
+                     "chat_title": "派单类型聊天室",
+                     "parame": {"type_classify": "3"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/chatroom/getListByCon",
+                     "chat_title": "交友聊天室开放并展示",
+                     "parame": {"is_open": "1",
+                                "is_show": "1",
+                                "type_classify": "3",
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    ]
+
+    # 默认展示聊天室信息
+    api_data_033 = {"url": api_url + "newapi/api/chatroom/getListByCon",
+                    "parame": {
+                               },
+                    "Method": "get",
+                    "expect": 2000000,
+                    }
+    # 根据id获取聊天室信息(id通过全局变量传递)
+    api_data_034 = {"url": api_url + "newapi/api/chatroom/getById",
+                    "parame": {"id": ''
+                               },
+                    "Method": "get",
+                    "expect": 2000000,
+                    }
+
+    # 根据id获取聊天室信息(id不存在)
+    api_data_034_a = {"url": api_url + "newapi/api/chatroom/getById",
+                    "parame": {"id":'110000'
+                               },
+                    "Method": "get",
+                    "expect": 2000000,
+                    }
+
+    # 加入聊天室-房间编号不存在或错误
+    api_data_035 = {"url": api_url + "newapi/api/chatroom/join",
+                    "parame": {"chatroom_id":'121212'
+                               },
+                    "Method": "get",
+                    "expect": 2005001,
+                    }
+
+    # 前置：获取已存在的聊天室id
+    api_data_036_a = {"url": api_url + "newapi/api/chatroom/getListByCon",
+                      "parame": {"is_open": '1'
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
+    # 加入聊天室-房间编号存在（通过全局变量UUID传参）
+    api_data_036_b = {"url": api_url + "newapi/api/chatroom/join",
+                    "parame": {"chatroom_id":''
+                               },
+                    "Method": "get",
+                    "expect": 2000000,
+                    }
+
+    # 退出聊天室-已加入聊天室（通过全局变量UUID传参）
+    api_data_037 = {"url": api_url + "newapi/api/chatroom/exit",
+                    "parame": {"chatroom_id":''
+                               },
+                    "Method": "get",
+                    "expect": 2000000,
+                    }
+
+    # 退出聊天室-聊天室不存在或不在房间中
+    api_data_038 = {"url": api_url + "newapi/api/chatroom/exit",
+                    "parame": {"chatroom_id": '1200000'
+                               },
+                    "Method": "get",
+                    "expect": 2005001,
+                    }
+
+    # 退出聊天室-缺少聊天室id
+    api_data_039 = {"url": api_url + "newapi/api/chatroom/exit",
+                    "parame": {
+                               },
+                    "Method": "get",
+                    "expect": 2001003,
+                    }
+
+
+
+
+class GiftApi:
+
+    # 获取礼物列表
+    api_data_050 = [{"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "不传参数",
+                    "parame": {
+                    },
+                    "Method": "get",
+                    "expect": 2000000,
+                    },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "不展示",
+                     "parame": {"is_show": "0"
+                     },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "展示",
+                     "parame": {"is_show": "1"
+                     },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "砖石",
+                     "parame": {"type": "1"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "呱币",
+                     "parame": {"type": "2"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "页码",
+                     "parame": {"page": "2"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "展示有效期内的礼物",
+                     "parame": {"is_at_validity": "1"
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "分页",
+                     "parame": {"is_paginate": True
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/getListByCon",
+                     "api_title": "组合赛选",
+                     "parame": {"is_show": "1",
+                                "is_paginate": True,
+                                "type": "2",
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     }
+                    ]
+
+
+
+
+
+
+
+

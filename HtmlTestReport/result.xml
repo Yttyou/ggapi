@@ -1,1 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="0" failures="0" hostname="QH-20200530ZETA" name="pytest" skipped="0" tests="2" time="0.761" timestamp="2020-08-11T17:47:14.407810"><testcase classname="TestCases.test_api.TestUserRelated" file="TestCases\test_api.py" line="140" name="test_api_007" time="0.369"></testcase><testcase classname="TestCases.test_api.TestLiveRoom" file="TestCases\test_api.py" line="723" name="test_api_031" time="0.133"></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="0" failures="1" hostname="QH-20200530ZETA" name="pytest" skipped="0" tests="8" time="2.172" timestamp="2020-08-12T18:32:00.347307"><testcase classname="TestCases.test_api.TestUserRelated" file="TestCases\test_api.py" line="141" name="test_api_007" time="0.361"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="763" name="test_api_033" time="0.152"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="786" name="test_api_034" time="0.147"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="809" name="test_api_035" time="0.191"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="822" name="test_api_036" time="0.467"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="844" name="test_api_037" time="0.185"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="859" name="test_api_038" time="0.145"></testcase><testcase classname="TestCases.test_api.TestChatRoom" file="TestCases\test_api.py" line="872" name="test_api_039" time="0.143"><failure message="assert 2001003 == 2005001">self = &lt;TestCases.test_api.TestChatRoom object at 0x00000000044C5988&gt;
+
+    @pytest.mark.demo
+    def test_api_039(self):
+        titel = &quot;退出聊天室-缺少聊天室id&quot;
+        data = ChatRoomApi.api_data_039
+        response = share_request(titel, data)
+        try:
+&gt;           assert response[&apos;code&apos;] == data[&quot;expect&quot;]
+E           assert 2001003 == 2005001
+
+TestCases\test_api.py:879: AssertionError</failure></testcase></testsuite></testsuites>
