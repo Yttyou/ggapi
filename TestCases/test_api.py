@@ -905,7 +905,7 @@ class TestGift:
                 one_gift_name = response["ret"]["data"][0]["name"]
                 logging.info("礼物列表有 {} 个礼物，其中一个礼物名称为 '{}'".format(gift_number,one_gift_name))
             else:
-                logging.info("当前礼物列表没有礼物,请核实！")
+                logging.info("当前礼物列表没有礼物,！")
 
 
 
