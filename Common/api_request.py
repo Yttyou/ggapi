@@ -27,7 +27,7 @@ class ApiRequest:
                    "appversion": "1.0.2",
                    "apppt": "2",
                    "isNoEncryption": "1",
-                   "channelId": "1",
+                   "channelId": "1",         # 配置说明：呱呱--1；团团--29
                    }
         return headers
 

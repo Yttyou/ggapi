@@ -2,10 +2,12 @@
 
 from Common.BaseDef import BaseDef
 # 注册/登录手机号
-iphone = '13297025059'
+iphone = '13297025029'
 pwd = 'aaa111'
 new_pwd = 'bbb000'
 update_pwd = '111aaa'
+code_iphone = '13297025057'     # 可接受验证码的手机号
+player_iphone = '13299999999'   # 玩家大神手机号
 
 api_url = "https://ggapi.qwdj.com/"
 
@@ -34,6 +36,26 @@ class UserData:
                     "Method": "post",
                     "expect": 2000000
                     }
+
+    # 发送验证码（登录时）
+    api_send_code_01 = {"url": api_url + "newapi/api/common/sendVerifyCode",
+                        "parame": {"target": code_iphone,
+                                   "target_type": '1',
+                                   "type": '1',
+                               },
+                        "Method": "post",
+                        "expect": 2000000
+                        }
+
+    # 发送验证码（忘记密码）
+    api_send_code_02 = {"url": api_url + "newapi/api/common/sendVerifyCode",
+                        "parame": {"target": code_iphone,
+                                   "target_type": '1',
+                                   "type": '2',
+                                   },
+                        "Method": "post",
+                        "expect": 2000000
+                        }
 
     # 注册成功后验证用户是否存在
     api_data_003 = {"url": api_url + "newapi/api/user/isExist",
@@ -157,12 +179,12 @@ class UserData:
 
     # 更新个人信息
     api_data_010 = {"url": api_url + "newapi/api/user/updateBySelf",
-                    "parame": {"nick_name": "更改昵称-{}".format(random_number),
+                    "parame": {"nick_name": "api自动化测试-{}".format(random_number),
                                "weight": "62"
                                },
                     "Method": "post",
                     "expect": 2000000,
-                    "expect_name": "更改昵称-{}".format(random_number)
+                    "expect_name": "api自动化测试-{}".format(random_number)
                     }
 
     # 根据id获取用户信息-id存在  (id通过用例中全局变量传递)
@@ -529,6 +551,42 @@ class ChatRoomApi:
 
 class GiftApi:
 
+    # 获取聊天室中-有效的礼物（钻石）
+    api_get_gift_a = {"url": api_url + "newapi/api/gift/getListByCon",
+                      "parame": {"type": "1",  # 1 钻石；2 呱币
+                                 "is_at_validity": "1"  # 1有效，2 无效
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
+    # 获取聊天室中-过期的礼物（钻石）
+    api_get_gift_b = {"url": api_url + "newapi/api/gift/getListByCon",
+                      "parame": {"type": "1",  # 1 钻石；2 呱币
+                                 "is_at_validity": "0"  # 1有效，0或空 无效
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
+    # 获取呱币礼物(有效)
+    api_get_gift_c = {"url": api_url + "newapi/api/gift/getListByCon",
+                      "parame": {"type": "2",  # 1 钻石；2 呱币
+                                 "is_at_validity": "1"  # 1有效，0或空 无效
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
+    # 获取呱币礼物(无效)
+    api_get_gift_d = {"url": api_url + "newapi/api/gift/getListByCon",
+                      "parame": {"type": "2",  # 1 钻石；2 呱币
+                                 "is_at_validity": "0"  # 1有效，0或空 无效
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
     # 获取礼物列表
     api_data_050 = [{"url": api_url + "newapi/api/gift/getListByCon",
                      "api_title": "不传参数",
@@ -597,10 +655,245 @@ class GiftApi:
                      }
                     ]
 
+    # 获取动态id
+    api_data_051 = {"url": api_url + "oldapi/api/state/statelist/states_all",
+                      "parame": {
+                               },
+                      "Method": "post",
+                      "expect": 2000000,
+                    }
+
+    # 给动态的用户送礼物(正确流)    传参均通过全局变量动态获取
+    api_data_052 = [{"url": api_url + "newapi/api/gift/sendTrendsGift",
+                    "api_title": "1个有效呱币礼物",
+                      "parame": {"to_user_id": "",          # 发送动态的用户id
+                                 "user_status_id": "",      # 动态id
+                                 "gift_id": "",             # 礼物编号id
+                                 "amount": 1,              # 礼物数量
+                               },
+                      "Method": "post",
+                      "expect": 2000000,
+                    },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "多个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": 8,
+                                },
+                     "Method": "post",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "20个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": 20,
+                                },
+                     "Method": "post",
+                     "expect": 2000000,
+                     },
+                    ]
+
+    # 给动态的用户送礼物(错误流)    传参均通过全局变量动态获取
+    api_data_053 = [{"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "0个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": 0,
+                                },
+                     "Method": "post",
+                     "expect": 2006008,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "(-1个有效呱币礼物)",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": -1,
+                                },
+                     "Method": "post",
+                     "expect": 2006008,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "(礼物个数为空)",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": None,
+                                },
+                     "Method": "post",
+                     "expect": 2001003
+                     },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "(礼物个数值为True)",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": True,
+                                },
+                     "Method": "post",
+                     "expect": 2001003
+                     },
+                    ]
+
+    # 赠送动态礼物(有效的钻石礼物)    传参均通过全局变量动态获取
+    api_data_054 = {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": 1,
+                                },
+                     "Method": "post",
+                     "expect": 2006002,
+                     }
+
+    # 赠送动态礼物(不存在的礼物)    传参均通过全局变量动态获取
+    api_data_055 = {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": 9999,
+                                "amount": 1,
+                                },
+                     "Method": "post",
+                     "expect": 2006002,
+                     }
+
+    # ==================   赠送个人礼物  =======================
+
+    # 赠送个人礼物(礼物数量正确流)    传参均通过全局变量动态获取
+    api_data_056 = [{"url": api_url + "newapi/api/gift/sendPersonalGift",
+                    "api_title": "1个有效呱币礼物",
+                      "parame": {"to_user_id": "",          # 发送动态的用户id
+                                 "gift_id": "",             # 礼物编号id
+                                 "amount": 1,              # 礼物数量
+                               },
+                      "Method": "post",
+                      "expect": 2000000,
+                    },
+                    {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "api_title": "多个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": 8,
+                                },
+                     "Method": "post",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "api_title": "20个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": 20,
+                                },
+                     "Method": "post",
+                     "expect": 2000000,
+                     },
+                    ]
+
+    # 给个人礼物(错误流)    传参均通过全局变量动态获取
+    api_data_057 = [{"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "api_title": "0个有效呱币礼物",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": 0,
+                                },
+                     "Method": "post",
+                     "expect": 2006008,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "api_title": "(-1个有效呱币礼物)",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": -1,
+                                },
+                     "Method": "post",
+                     "expect": 2006008,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendTrendsGift",
+                     "api_title": "(礼物个数为空)",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": None,
+                                },
+                     "Method": "post",
+                     "expect": 2001003
+                     },
+                    {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "api_title": "(礼物个数值为True)",
+                     "parame": {"to_user_id": "",
+                                "gift_id": "",
+                                "amount": True,
+                                },
+                     "Method": "post",
+                     "expect": 2001003
+                     },
+                    ]
+
+    # 赠送动态礼物(有效的钻石礼物)    传参均通过全局变量动态获取
+    api_data_058 = {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": "",
+                                "amount": 1,
+                                },
+                     "Method": "post",
+                     "expect": 2006002,
+                     }
+
+    # 赠送动态礼物(不存在的礼物)    传参均通过全局变量动态获取
+    api_data_059 = {"url": api_url + "newapi/api/gift/sendPersonalGift",
+                     "parame": {"to_user_id": "",
+                                "user_status_id": "",
+                                "gift_id": 9999,
+                                "amount": 1,
+                                },
+                     "Method": "post",
+                     "expect": 2006002,
+                     }
+
+    # 获取个人礼物墙
+    api_data_060 = {"url": api_url + "newapi/api/gift/giftWall",
+                     "parame": {"user_id": ""
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     }
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+# 其他相关api
+class OtherApi:
+
+    # 根据条件获取图文规则列表
+    other_data_001 = {"url": api_url + "newapi/api/tw/getListByCon",
+                      "parame": {
+                               },
+                      "Method": "get",
+                      "expect": 2000000,
+                      "title": "隐私政策"
+                    }
+
+    # 根据条件获取广告列表
+    other_data_002 = {"url": api_url + "newapi/api/ad/getById",
+                      "parame": {'id': '1200018'
+                               },
+                      "Method": "get",
+                      "expect": 2000000,
+                    }
 

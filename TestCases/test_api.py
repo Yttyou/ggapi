@@ -5,15 +5,19 @@ from Common import logger
 import logging
 import json
 from Common.api_request import ApiRequest
-from TestData.api_data import UserData,LiveRoomApi,GiftApi,ChatRoomApi
+from TestData.api_data import UserData,LiveRoomApi,GiftApi,ChatRoomApi,OtherApi
 from TestData import api_data
 from Common import path_config
+import random
+import time
 
 TOKEN = ''      # 用来存储token
 KEYS = ''       # 用来存储key
 ID = ''         # 用来存储用户id
 NICK_NAME = '更改昵称'  # 用来存储用户的昵称
 UUID = ''       # 用来存储UUID
+STATE_ID = ''    # 用来存储动态id
+STATE_USER_ID = '' # 用来存储发送动态用户的id
 
 # 共用部分
 def share_request(titel, data):
@@ -28,6 +32,61 @@ def share_request(titel, data):
     logging.info("本次请求响应结果如下：")
     logging.info(response)
     return response
+
+# 获取聊天室中-有效的礼物（钻石）
+def get_gift_a():
+    data = GiftApi.api_get_gift_a
+    titel = "获取有效的礼物（钻石）"
+    response = share_request(titel, data)
+    gift_bumber = len(response["ret"]["data"])          # 礼物个数
+    gift = random.choice(response["ret"]["data"])       # 随机选中其中一个礼物
+    gift_name = gift["name"]
+    gift_id = gift["id"]
+    logging.info("获取到的钻石礼物个数为：{} 个".format(gift_bumber))
+    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    return gift_id  # 返回礼物id
+
+# 获取聊天室中-过期的礼物（钻石）
+def get_gift_b():
+    data = GiftApi.api_get_gift_b
+    titel = "获取聊天室中-过期的礼物（钻石）"
+    response = share_request(titel, data)
+    gift_bumber = len(response["ret"]["data"])    # 礼物个数
+    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift_name = gift["name"]
+    gift_id = gift["id"]
+    logging.info("获取到的钻石礼物个数为：{} 个".format(gift_bumber))
+    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    return gift_id  # 返回礼物id
+
+# 获取呱币礼物(有效)
+def get_gift_c():
+    data = GiftApi.api_get_gift_c
+    titel = "获取呱币礼物(有效)"
+    response = share_request(titel, data)
+    gift_bumber = len(response["ret"]["data"])    # 礼物个数
+    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift_name = gift["name"]
+    gift_id = gift["id"]
+    logging.info("获取到的有效呱币礼物个数为：{} 个".format(gift_bumber))
+    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    return gift_id  # 返回礼物id
+
+# 获取呱币礼物(无效)
+def get_gift_d():
+    data = GiftApi.api_get_gift_d
+    titel = "获取呱币礼物(无效)"
+    response = share_request(titel, data)
+    gift_bumber = len(response["ret"]["data"])    # 礼物个数
+    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift_name = gift["name"]
+    gift_id = gift["id"]
+    logging.info("获取到的无效呱币礼物个数为：{} 个".format(gift_bumber))
+    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    return gift_id  # 返回礼物id
+
+
+"""  以下是测试用例   """
 
 class TestUserRelated:
 
@@ -49,6 +108,32 @@ class TestUserRelated:
     def test_api_002(self):
         titel = "手机号注册"
         data = UserData.api_data_002
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功.")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 发送验证码（登录时）
+    @pytest.mark.all
+    def test_api_send_code_01(self):
+        titel = "发送验证码（登录时）"
+        data = UserData.api_send_code_01
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功.")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 发送验证码（忘记密码）
+    @pytest.mark.all
+    def test_api_send_code_02(self):
+        titel = "发送验证码（忘记密码）"
+        data = UserData.api_send_code_02
         response = share_request(titel, data)
         try:
             assert response['code'] == data["expect"]
@@ -157,6 +242,7 @@ class TestUserRelated:
             TOKEN = response["ret"]["token"]         # 获取登录的token
             KEYS = response["ret"]["key"]
             ID = response["ret"]["id"]
+            logging.info("获取登录后的token的值为：{}".format(TOKEN))
         except:
             logging.exception("code断言失败了！")
             raise
@@ -613,6 +699,7 @@ class TestUserRelated:
     def test_api_025(self):
         titel = "重复绑定第三方账号(QQ)"
         data = UserData.api_data_025_a     # 第一次绑定
+        time.sleep(2)
         data = UserData.api_data_025_b     # 重复绑定
         response = share_request(titel, data)
         try:
@@ -627,6 +714,7 @@ class TestUserRelated:
     def test_api_026(self):
         titel = "重复取消绑定第三方账号(微信)"
         data = UserData.api_data_026     # 第一次绑定
+        time.sleep(2)
         data = UserData.api_data_026     # 重复绑定
         response = share_request(titel, data)
         try:
@@ -761,7 +849,7 @@ class TestChatRoom:
                 logging.info("筛选后当前列表没有聊天室！")
 
     # 默认展示聊天室信息
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_033(self):
         titel = "默认展示聊天室信息"
         data = ChatRoomApi.api_data_033
@@ -784,7 +872,7 @@ class TestChatRoom:
                 logging.info("当前列表没有聊天室！")
 
     # 根据id获取聊天室信息
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_034(self):
         titel = "根据id获取聊天室信息"
         data = ChatRoomApi.api_data_034
@@ -807,7 +895,7 @@ class TestChatRoom:
                 raise
 
     # 加入聊天室-房间编号不存在或错误
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_035(self):
         titel = "加入聊天室-房间编号不存在或错误"
         data = ChatRoomApi.api_data_035
@@ -820,7 +908,7 @@ class TestChatRoom:
             raise
 
     # 加入聊天室-房间编号存在
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_036(self):
         titel = "加入聊天室-房间编号存在"
         logging.info("前置条件：获取已经开了聊天室的id")
@@ -842,7 +930,7 @@ class TestChatRoom:
             raise
 
     # 退出聊天室-已加入聊天室
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_037(self):
         titel = "退出聊天室-已加入聊天室"
         data = ChatRoomApi.api_data_037
@@ -857,7 +945,7 @@ class TestChatRoom:
             raise
 
     # 退出聊天室-聊天室不存在或不在房间中
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_038(self):
         titel = "退出聊天室-聊天室不存在或不在房间中"
         data = ChatRoomApi.api_data_038
@@ -870,7 +958,7 @@ class TestChatRoom:
             raise
 
     # 退出聊天室-缺少聊天室id
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_039(self):
         titel = "退出聊天室-缺少聊天室id"
         data = ChatRoomApi.api_data_039
@@ -905,9 +993,252 @@ class TestGift:
                 one_gift_name = response["ret"]["data"][0]["name"]
                 logging.info("礼物列表有 {} 个礼物，其中一个礼物名称为 '{}'".format(gift_number,one_gift_name))
             else:
-                logging.info("当前礼物列表没有礼物,！")
+                logging.info("当前礼物列表没有礼物！")
+
+    # ==================   赠送动态礼物 =======================
+
+    # 获取动态帖子id
+    @pytest.mark.demo
+    def test_api_051(self):
+        titel = "获取动态帖子id"
+        data = GiftApi.api_data_051
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：需要返回动态内容")
+            try:
+                assert len(response['ret']) > 0
+                global STATE_ID, STATE_USER_ID
+                state_list = response['ret']          # 动态列表
+                state = state_list[random.randint(0, 5)]     # 获取前5个动态中的一个
+                STATE_ID = state["id"]
+                STATE_USER_ID = state["uid"]
+                logging.info("返回动态list中有 {} 个数据".format(len(state_list)))
+                logging.info("其中（前5）一个动态title为 ‘{}’".format(state["title"]))
+            except:
+                logging.exception("检查失败！返回的动态列表没数据或异常")
+                raise
+
+    # 赠送动态礼物(礼物数量正确流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_052)
+    def test_api_052(self,data):
+        titel = "（正确流）给动态送礼-{}".format(data["api_title"])
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["user_status_id"] = int(STATE_ID)
+        data["parame"]["gift_id"] = int(get_gift_c())
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：送礼返回的数据")
+            gift_data = response['ret']['gift']
+            try:
+                assert gift_data is not None
+                logging.info("检查成功。动态送礼有返回值，赠送的礼物名字为：‘{}’".format(gift_data['name']))
+            except:
+                logging.exception("检查失败！动态送礼！返回值中没有数据")
+                raise
+
+    # 赠送动态礼物(礼物数量错误流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_053)
+    def test_api_053(self, data):
+        titel = "（错误流）给动态送礼-{}".format(data["api_title"])
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["user_status_id"] = int(STATE_ID)
+        data["parame"]["gift_id"] = int(get_gift_c())
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 赠送动态礼物(有效的钻石礼物)
+    @pytest.mark.all
+    def test_api_054(self):
+        titel = "赠送动态礼物(有效的钻石礼物)"
+        data = GiftApi.api_data_054
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["user_status_id"] = int(STATE_ID)
+        data["parame"]["gift_id"] = int(get_gift_a())          # 有效的钻石礼物
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 赠送动态礼物(不存在的礼物)
+    @pytest.mark.all
+    def test_api_055(self):
+        titel = "赠送动态礼物(不存在的礼物)"
+        data = GiftApi.api_data_055
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["user_status_id"] = int(STATE_ID)
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # ==================   赠送个人礼物  =======================
+
+    # 赠送个人礼物(礼物数量正确流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_056)
+    def test_api_056(self, data):
+        titel = "（正确流）个人礼物-{}".format(data["api_title"])
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["gift_id"] = int(get_gift_c())
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：送礼返回的数据")
+            gift_data = response['ret']['user_wallet']
+            try:
+                assert gift_data is not None
+                logging.info("检查成功。被赠送的用户id为：‘{}’".format(gift_data['id']))
+            except:
+                logging.exception("检查失败！动态送礼！返回值中没有数据")
+                raise
+
+    # 赠送个人礼物(礼物数量错误流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_057)
+    def test_api_057(self, data):
+        titel = "（错误流）赠送个人礼物-{}".format(data["api_title"])
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["gift_id"] = int(get_gift_c())
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 赠送个人礼物(有效的钻石礼物)
+    @pytest.mark.all
+    def test_api_058(self):
+        titel = "赠送个人礼物(有效的钻石礼物)"
+        data = GiftApi.api_data_058
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        data["parame"]["gift_id"] = int(get_gift_a())          # 有效的钻石礼物
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 赠送个人礼物(不存在的礼物)
+    @pytest.mark.all
+    def test_api_059(self):
+        titel = "赠送个人礼物(不存在的礼物)"
+        data = GiftApi.api_data_059
+        data["parame"]["to_user_id"] = int(STATE_USER_ID)
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 获取个人礼物墙
+    @pytest.mark.demo
+    def test_api_060(self):
+        titel = "获取个人礼物墙"
+        data = GiftApi.api_data_060
+        data["parame"]["user_id"] = int(STATE_USER_ID)
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：返回数据")
+            gift_data = response['ret']
+            try:
+                assert gift_data is not None
+                diamond_gift_bumber = len(gift_data['diamond_gift'])
+                gb_gift_bumber = len(gift_data['gb_gift'])
+                logging.info("检查成功。用户’{0}‘的钻石礼物有 {1} 种，呱币礼物有 {2} 种".format(STATE_USER_ID, diamond_gift_bumber, gb_gift_bumber))
+            except:
+                logging.exception("检查失败！动态送礼！返回值中没有数据")
+                raise
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+class TestOtherApi:
+
+    # 根据条件获取图文规则列表
+    @pytest.mark.all
+    def test_other_api_01(self):
+        titel = "根据条件获取图文规则列表"
+        data = OtherApi.other_data_001
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查内容展示")
+            try:
+                assert str(response['ret']["data"]).find(data["title"]) > 0   # 文本中有’隐私政策‘字样
+                logging.info("检查内容展示成功")
+            except:
+                logging.exception("检查内容展示有异常。")
+                raise
+
+    # 根据条件获取广告列表
+    @pytest.mark.all
+    def test_other_api_02(self):
+        titel = "根据条件获取广告列表"
+        data = OtherApi.other_data_002
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
 
 
 
