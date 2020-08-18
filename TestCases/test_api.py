@@ -6,6 +6,7 @@ import logging
 import json
 from Common.api_request import ApiRequest
 from TestData.api_data import UserData,LiveRoomApi,GiftApi,ChatRoomApi,OtherApi
+from TestData.api_data import OrderApi
 from TestData import api_data
 from Common import path_config
 import random
@@ -13,7 +14,7 @@ import time
 
 TOKEN = ''      # 用来存储token
 KEYS = ''       # 用来存储key
-ID = ''         # 用来存储用户id
+ID = ''         # 用来存储用户id或聊天室id
 NICK_NAME = '更改昵称'  # 用来存储用户的昵称
 UUID = ''       # 用来存储UUID
 STATE_ID = ''    # 用来存储动态id
@@ -39,11 +40,11 @@ def get_gift_a():
     titel = "获取有效的礼物（钻石）"
     response = share_request(titel, data)
     gift_bumber = len(response["ret"]["data"])          # 礼物个数
-    gift = random.choice(response["ret"]["data"])       # 随机选中其中一个礼物
+    gift = response["ret"]["data"][random.randint(0,4)]    # 1-5序列礼物中随机选中一个礼物
     gift_name = gift["name"]
     gift_id = gift["id"]
     logging.info("获取到的钻石礼物个数为：{} 个".format(gift_bumber))
-    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    logging.info("其中一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
     return gift_id  # 返回礼物id
 
 # 获取聊天室中-过期的礼物（钻石）
@@ -52,11 +53,11 @@ def get_gift_b():
     titel = "获取聊天室中-过期的礼物（钻石）"
     response = share_request(titel, data)
     gift_bumber = len(response["ret"]["data"])    # 礼物个数
-    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift = response["ret"]["data"][random.randint(0,4)]    # 1-5序列礼物中随机选中一个礼物
     gift_name = gift["name"]
     gift_id = gift["id"]
     logging.info("获取到的钻石礼物个数为：{} 个".format(gift_bumber))
-    logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
+    logging.info("其中一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
     return gift_id  # 返回礼物id
 
 # 获取呱币礼物(有效)
@@ -65,7 +66,7 @@ def get_gift_c():
     titel = "获取呱币礼物(有效)"
     response = share_request(titel, data)
     gift_bumber = len(response["ret"]["data"])    # 礼物个数
-    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift = response["ret"]["data"][random.randint(0,4)]    # 1-5序列礼物中随机选中一个礼物
     gift_name = gift["name"]
     gift_id = gift["id"]
     logging.info("获取到的有效呱币礼物个数为：{} 个".format(gift_bumber))
@@ -78,16 +79,32 @@ def get_gift_d():
     titel = "获取呱币礼物(无效)"
     response = share_request(titel, data)
     gift_bumber = len(response["ret"]["data"])    # 礼物个数
-    gift = random.choice(response["ret"]["data"])  # 随机选中其中一个礼物
+    gift = response["ret"]["data"][random.randint(0,4)]    # 1-5序列礼物中随机选中一个礼物
     gift_name = gift["name"]
     gift_id = gift["id"]
     logging.info("获取到的无效呱币礼物个数为：{} 个".format(gift_bumber))
     logging.info("第一个礼物名称为 ‘{}’，礼物id为 ‘{}’".format(gift_name, gift_id))
     return gift_id  # 返回礼物id
 
+# 获取礼盒(有效)
+def get_box():
+    data = GiftApi.api_get_box
+    titel = "获取礼盒(有效)"
+    response = share_request(titel, data)
+    box_bumber = len(response["ret"]["data"])    # 礼盒个数
+    if box_bumber <= 3:
+        box = response["ret"]["data"][random.randint(0,box_bumber-1)]
+    else:
+        box = response["ret"]["data"][random.randint(0,4)]    # 1-5序列礼盒中随机选中一个礼物
+    gift_name = box["name"]
+    box_id = box["id"]
+    logging.info("获取到的有效礼盒个数为：{} 个".format(box_bumber))
+    logging.info("第一个礼盒名称为 ‘{}’，礼盒id为 ‘{}’".format(gift_name, box_id))
+    return box_id  # 返回礼盒id
 
 """  以下是测试用例   """
 
+# 用户相关
 class TestUserRelated:
 
     # 手机号注册-输入错误手机号
@@ -224,7 +241,7 @@ class TestUserRelated:
                     raise
 
     # 手机号登录-正确场景
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_007(self):
         titel = "手机号登录-正确场景"
         logging.info("用例前置：将账号修改密码还原为'{}'".format(api_data.pwd))
@@ -824,6 +841,7 @@ class TestLiveRoom:
             logging.exception("code断言失败了！")
             raise
 
+
 # 聊天室相关
 class TestChatRoom:
 
@@ -875,7 +893,13 @@ class TestChatRoom:
     @pytest.mark.all
     def test_api_034(self):
         titel = "根据id获取聊天室信息"
-        data = ChatRoomApi.api_data_034
+        logging.info("前置条件：获取已开聊天室的ID")
+        data = ChatRoomApi.api_data_034_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        global ID
+        ID = chatroom_list[random.randint(0,4)]['id']    # 从前5个聊天室中选一个
+        data = ChatRoomApi.api_data_034_b
         data["parame"]["id"] = ID
         logging.info("此时获取到的全局变量ID为：{}".format(ID))
         response = share_request(titel, data)
@@ -914,8 +938,15 @@ class TestChatRoom:
         logging.info("前置条件：获取已经开了聊天室的id")
         data = ChatRoomApi.api_data_036_a
         response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
         global ID
-        ID = response['ret']['data'][0]['id']
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
         data = ChatRoomApi.api_data_036_b
         data["parame"]["chatroom_id"] = ID
         logging.info("此时获取到的全局变量ID为：{}".format(ID))
@@ -995,10 +1026,31 @@ class TestGift:
             else:
                 logging.info("当前礼物列表没有礼物！")
 
+    # 根据条件获取礼盒列表
+    @pytest.mark.all
+    def test_api_050_a(self):
+        titel = "根据条件获取礼盒列表"
+        data = GiftApi.api_data_050_a
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查礼盒信息")
+            gift_number = len(response["ret"]["data"])
+            if gift_number > 0:
+                one_gift_name = response["ret"]["data"][0]["name"]
+                logging.info("礼盒列表有 {} 个礼物，其中一个礼盒名称为 '{}'".format(gift_number, one_gift_name))
+            else:
+                logging.info("当前礼盒列表没有礼物！")
+
     # ==================   赠送动态礼物 =======================
 
     # 获取动态帖子id
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_051(self):
         titel = "获取动态帖子id"
         data = GiftApi.api_data_051
@@ -1167,7 +1219,7 @@ class TestGift:
             raise
 
     # 获取个人礼物墙
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_060(self):
         titel = "获取个人礼物墙"
         data = GiftApi.api_data_060
@@ -1191,17 +1243,383 @@ class TestGift:
                 logging.exception("检查失败！动态送礼！返回值中没有数据")
                 raise
 
+    # ==================   聊天室送礼物  =======================
+
+    # 聊天室送钻石礼物(正确流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data_api", GiftApi.api_data_061_c)
+    def test_api_061(self, data_api):
+        titel = "聊天室送钻石礼物(正确流)"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        titel = "（正确流）聊天室送钻石礼物-{}".format(data_api["api_title"])
+        data_api["parame"]["chatroom_id"] = ID
+        data_api["parame"]["gift_id"] = get_gift_a()    # 动态获取礼物id（每次随机获取）
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data_api["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data_api)
+        try:
+            assert response['code'] == data_api["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：送礼后有返回数据")
+            try:
+                assert response['ret']['user_wallet'] is not None
+                logging.info("检查成功。有返回数据")
+            except:
+                logging.exception("检查失败！送礼后没有返回数据")
+                raise
+
+    # 聊天室送钻石礼物(错误流)
+    @pytest.mark.all
+    @pytest.mark.parametrize("data_api", GiftApi.api_data_062)
+    def test_api_062(self, data_api):
+        titel = "聊天室送钻石礼物(错误流)"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        titel = "（正确流）聊天室送钻石礼物-{}".format(data_api["api_title"])
+        data_api["parame"]["chatroom_id"] = ID
+        data_api["parame"]["gift_id"] = get_gift_a()    # 动态获取礼物id（每次随机获取）
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data_api["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data_api)
+        try:
+            assert response['code'] == data_api["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 聊天室送呱币礼物
+    @pytest.mark.all
+    @pytest.mark.parametrize("data_api", GiftApi.api_data_063)
+    def test_api_063(self, data_api):
+        titel = "聊天室送呱币礼物"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        titel = "（正确流）聊天室送钻石礼物-{}".format(data_api["api_title"])
+        data_api["parame"]["chatroom_id"] = ID
+        data_api["parame"]["gift_id"] = get_gift_c()    # 动态获取礼物id（每次随机获取）
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data_api["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data_api)
+        try:
+            assert response['code'] == data_api["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 聊天室送礼盒（正确流）
+    @pytest.mark.all
+    @pytest.mark.parametrize("data_api", GiftApi.api_data_064)
+    def test_api_064(self, data_api):
+        titel = "聊天室送礼盒（正确流）"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        titel = "（正确流）聊天室送礼盒礼物-{}".format(data_api["api_title"])
+        data_api["parame"]["chatroom_id"] = ID
+        data_api["parame"]["box_id"] = get_box()    # 动态获取礼盒id（每次随机获取）
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data_api["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data_api)
+        try:
+            assert response['code'] == data_api["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：送礼盒有返回数据")
+            try:
+                assert response['ret']['user_wallet'] is not None
+                logging.info("检查成功。有返回数据")
+            except:
+                logging.exception("检查失败！送礼后没有返回数据")
+                raise
+
+    # 聊天室送礼盒（错误流）
+    @pytest.mark.all
+    @pytest.mark.parametrize("data_api", GiftApi.api_data_065)
+    def test_api_065(self, data_api):
+        titel = "聊天室送礼盒（错误流）"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        titel = "（错误流）聊天室送礼盒礼物-{}".format(data_api["api_title"])
+        data_api["parame"]["chatroom_id"] = ID
+        data_api["parame"]["box_id"] = get_box()    # 动态获取礼盒id（每次随机获取）
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data_api["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data_api)
+        try:
+            assert response['code'] == data_api["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 聊天室送礼盒-聊天室不存在
+    @pytest.mark.all
+    def test_api_066(self):
+        titel = "聊天室送礼盒-聊天室不存在"
+        data = GiftApi.api_data_066
+        data["parame"]["box_id"] = get_box()    # 动态获取礼盒id（每次随机获取）
+        data["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": 1200085, "mike_pos": 0}])
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 聊天室送礼盒-礼盒id不存在
+    @pytest.mark.all
+    def test_api_067(self):
+        titel = "聊天室送礼盒-礼盒id不存在"
+        logging.info("前置条件：获取并进入已经开播的聊天室")
+        logging.info("接下来是获取开放的聊天室id。。。")
+        data = GiftApi.api_data_061_a
+        response = share_request(titel, data)
+        chatroom_list = response['ret']['data']
+        number = len(chatroom_list)
+        logging.info("当前聊天室个数为 {} ".format(number))
+        global ID
+        if number <= 5:
+            ID = chatroom_list[random.randint(0, number - 1)]['id']
+        else:
+            ID = chatroom_list[random.randint(0, 4)]['id']  # 从前5个聊天室中选一个
+        logging.info("接下来是进入聊天室。。。")
+        data = GiftApi.api_data_061_b
+        data["parame"]["chatroom_id"] = ID
+        logging.info("此时获取到的全局变量聊天室的ID为：{}".format(ID))
+        response = share_request(titel, data)
+        data = GiftApi.api_data_067
+        logging.info("--------------- 分割线----------------------")
+        logging.info("接下来是执行不同的测试场景。。")
+        data["parame"]["chatroom_id"] = ID
+        data["parame"]["box_id"] = 120000
+        # 先循环遍历聊天室麦位上有没有人，有则传对应的user_id和麦位，没有则传主播的
+        wheat_list = response['ret']['chatroom_mike_array']       # 存储所有麦位占坑情况（不包含主播）
+        user_id = ''
+        pos = ''
+        for index,j in enumerate(wheat_list) :
+            if j['user_id'] is not None:
+                user_id = j['user_id']     # 麦上的用户id
+                pos = j['pos']             # 麦位
+                logging.info("当前聊天室 {0} 麦位上有用户，user_id为 {1}".format(pos, user_id))
+                break
+        if user_id == '':
+            user_id = response['ret']['chatroom']['user_id']      # 主播id
+            pos = 0
+            logging.info("当前聊天室没有用户上麦，主播user_id为 {}".format(user_id))
+        data["parame"]["to_chatroom_user_id_with_mike_pos_arr"] = json.dumps([{"user_id": user_id, "mike_pos": pos}])
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 获取礼物订单列表
+    @pytest.mark.all
+    @pytest.mark.parametrize("data", GiftApi.api_data_068)
+    def test_api_068(self, data):
+        titel = "获取礼物订单条件-{}".format(data["api_title"])
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查礼物订单信息")
+            gift_number = len(response["ret"]["data"])
+            if gift_number > 0:
+                logging.info("筛选后礼物订单中有 {} 个礼物订单".format(gift_number))
+            else:
+                logging.info("筛选后当前列表没有礼物订单！")
 
 
-
-
-
-
-
-
-
-
-
+# 陪玩订单相关
+class TestOrderApi:
+    @pytest.mark.all
+    # 获取大神列表
+    def test_order_api_001(self):
+        titel = "获取大神列表"
+        data = OrderApi.order_data_001
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：返回陪玩列表数据")
+            order_number = len(response['ret'])
+            try:
+                assert order_number >0
+                nick_name = response['ret'][0]['nick_name']
+                logging.info("有返回陪玩列表数据，其中给一个陪玩大神的名字为 ‘{}’".format(nick_name))
+            except:
+                logging.exception("返回陪玩列表数据为空或异常！")
+                raise
 
 
 class TestOtherApi:

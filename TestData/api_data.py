@@ -482,16 +482,17 @@ class ChatRoomApi:
                     "Method": "get",
                     "expect": 2000000,
                     }
-    # 根据id获取聊天室信息(id通过全局变量传递)
-    api_data_034 = {"url": api_url + "newapi/api/chatroom/getById",
-                    "parame": {"id": ''
+
+    # 获取已经开起聊天室的id
+    api_data_034_a = {"url": api_url + "newapi/api/chatroom/getListByCon",
+                    "parame": {"is_open": '1'
                                },
                     "Method": "get",
                     "expect": 2000000,
                     }
 
     # 根据id获取聊天室信息(id不存在)
-    api_data_034_a = {"url": api_url + "newapi/api/chatroom/getById",
+    api_data_034_b = {"url": api_url + "newapi/api/chatroom/getById",
                     "parame": {"id":'110000'
                                },
                     "Method": "get",
@@ -547,8 +548,7 @@ class ChatRoomApi:
                     }
 
 
-
-
+# 礼物相关测试数据
 class GiftApi:
 
     # 获取聊天室中-有效的礼物（钻石）
@@ -582,6 +582,14 @@ class GiftApi:
     api_get_gift_d = {"url": api_url + "newapi/api/gift/getListByCon",
                       "parame": {"type": "2",  # 1 钻石；2 呱币
                                  "is_at_validity": "0"  # 1有效，0或空 无效
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
+
+    # 获取礼盒(有效)
+    api_get_box = {"url": api_url + "newapi/api/box/getListByCon",
+                      "parame": {"is_show": "1",    # 1 展示有效
                                  },
                       "Method": "get",
                       "expect": 2000000,
@@ -654,6 +662,14 @@ class GiftApi:
                      "expect": 2000000,
                      }
                     ]
+
+    # 根据条件获取礼盒列表
+    api_data_050_a = {"url": api_url + "newapi/api/box/getListByCon",
+                      "parame": {'is_show': "1"
+                                },
+                      "Method": "get",
+                      "expect": 2000000,
+                     }
 
     # 获取动态id
     api_data_051 = {"url": api_url + "oldapi/api/state/statelist/states_all",
@@ -862,17 +878,259 @@ class GiftApi:
                      "expect": 2000000,
                      }
 
+    # 前置：获取已存在的聊天室id
+    api_data_061_a = {"url": api_url + "newapi/api/chatroom/getListByCon",
+                      "parame": {"is_open": '1'
+                                 },
+                      "Method": "get",
+                      "expect": 2000000,
+                      }
 
+    # 加入聊天室-房间编号存在（通过全局变量ID传参）
+    api_data_061_b = {"url": api_url + "newapi/api/chatroom/join",
+                      "parame": {"chatroom_id":''
+                               },
+                      "Method": "get",
+                      "expect": 2000000,
+                    }
 
+    # 聊天室送钻石礼物(正确流)
+    api_data_061_c = [{"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送1钻石礼物",
+                       "parame": {"chatroom_id": '',      # 聊天室id
+                                 "gift_id": '',          # 礼物id
+                                 "amount": 1,            # 礼物数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2000000,
+                      },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送2个钻石礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": 2,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2000000,
+                       },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送10个钻石礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": 10,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2000000,
+                       },
+                      ]
 
+    # 聊天室送钻石礼物(错误流)
+    api_data_062 = [{"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送0个钻石礼物",
+                       "parame": {"chatroom_id": '',      # 聊天室id
+                                 "gift_id": '',          # 礼物id
+                                 "amount": 0,            # 礼物数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2006008,
+                      },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送-1个钻石礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": -1,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2006008,
+                       },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送None个钻石礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": None,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                        {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                         "api_title": "礼物个数amount值为True",
+                         "parame": {"chatroom_id": '',  # 聊天室id
+                                    "gift_id": '',  # 礼物id
+                                    "amount": True,  # 礼物数量
+                                    "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                    },
+                         "Method": "post",
+                         "expect": 2001003,
+                         },
+                      ]
 
+    # 聊天室送呱币礼物
+    api_data_063 = [{"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送1呱币礼物",
+                       "parame": {"chatroom_id": '',      # 聊天室id
+                                 "gift_id": '',          # 礼物id
+                                 "amount": 1,            # 礼物数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2006002,
+                      },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送0个呱币礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": 0,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2006008,
+                       },
+                      {"url": api_url + "newapi/api/gift/sendChatroomGift",
+                       "api_title": "送10个呱币礼物",
+                       "parame": {"chatroom_id": '',  # 聊天室id
+                                  "gift_id": '',  # 礼物id
+                                  "amount": True,  # 礼物数量
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                      ]
 
+    # 聊天室送礼盒（正确流）
+    api_data_064 = [{"url": api_url + "newapi/api/gift/sendChatroomBox",
+                       "api_title": "送1个礼盒",
+                       "parame": {"chatroom_id": '',      # 聊天室id
+                                 "box_id": '',          # 礼盒id
+                                 "amount": 1,            # 礼盒数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2000000,
+                      },
+                      {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                       "api_title": "送2个礼盒",
+                       "parame": {"chatroom_id": '',
+                                  "box_id": '',
+                                  "amount": 2,
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2000000,
+                       },
+                      ]
 
+    # 聊天室送礼盒（错误流）
+    api_data_065 = [{"url": api_url + "newapi/api/gift/sendChatroomBox",
+                       "api_title": "送0个礼盒",
+                       "parame": {"chatroom_id": '',      # 聊天室id
+                                 "box_id": '',          # 礼盒id
+                                 "amount": 0,            # 礼盒数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2006008,
+                      },
+                      {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                       "api_title": "送-1个礼盒",
+                       "parame": {"chatroom_id": '',
+                                  "box_id": '',
+                                  "amount": -1,
+                                  "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                  },
+                       "Method": "post",
+                       "expect": 2006008,
+                       },
+                    {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                     "api_title": "送None个礼盒",
+                     "parame": {"chatroom_id": '',
+                                "box_id": '',
+                                "amount": 2001003,
+                                "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                },
+                     "Method": "post",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                     "api_title": "礼盒数amount值为True",
+                     "parame": {"chatroom_id": '',
+                                "box_id": '',
+                                "amount": True,
+                                "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                },
+                     "Method": "post",
+                     "expect": 2001003,
+                     }
+                      ]
 
+    # 聊天室送礼盒-聊天室不存在
+    api_data_066 = {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                       "parame": {"chatroom_id": 1200000,      # 聊天室id
+                                 "box_id": '',          # 礼盒id
+                                 "amount": 1,            # 礼盒数量
+                                 "to_chatroom_user_id_with_mike_pos_arr": []    # 收礼用户id和麦位号
+                                },
+                       "Method": "post",
+                       "expect": 2005001
+                      }
 
+    # 聊天室送礼盒-礼盒id不存在
+    api_data_067 = {"url": api_url + "newapi/api/gift/sendChatroomBox",
+                     "parame": {"chatroom_id": '',
+                                "box_id": '',
+                                "amount": 1,
+                                "to_chatroom_user_id_with_mike_pos_arr": []  # 收礼用户id和麦位号
+                                },
+                     "Method": "post",
+                     "expect": 2006011,
+                     }
 
+    # 获取礼物订单列表
+    api_data_068 = [{"url": api_url + "newapi/api/giftOrder/getListByCon",
+                     'api_title': "正确流组合筛选",
+                     "parame": {"page": '2',
+                                "level": '2',
+                                "type": '1',
+                                "is_contribute": 1
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/giftOrder/getListByCon",
+                     'api_title': "等级0：带A用户信息，呱币礼物",
+                     "parame": {"page": '1',
+                                "level": '0',
+                                "type": '2',
+                                "is_contribute": 0
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    {"url": api_url + "newapi/api/giftOrder/getListByCon",
+                     'api_title': "默认筛选",
+                     "parame": {
+                                },
+                     "Method": "get",
+                     "expect": 2000000,
+                     },
+                    ]
 
+# 陪玩订单相关
+class OrderApi:
 
+    # 获取大神列表
+    order_data_001 = {"url": api_url + "oldapi/api/skill/skill_list/god_list",
+                      "parame": {'perpage': 10
+                      },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
 
 
 
