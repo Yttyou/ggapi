@@ -1,12 +1,14 @@
 """  接口测试用例  """
-
+import requests
+import json
 import pytest
 from Common import logger
 import logging
 import json
+from Common.BaseDef import BaseDef
 from Common.api_request import ApiRequest
 from TestData.api_data import UserData,LiveRoomApi,GiftApi,ChatRoomApi,OtherApi
-from TestData.api_data import OrderApi
+from TestData.api_data import OrderApi, SkillRelatedApi
 from TestData import api_data
 from Common import path_config
 import random
@@ -20,6 +22,11 @@ UUID = ''       # 用来存储UUID
 STATE_ID = ''    # 用来存储动态id
 STATE_USER_ID = '' # 用来存储发送动态用户的id
 
+SKILL_ID = ''      # 大神的技能ID
+ORDER_ID = ''      # 订单ID
+USID = ''          # 技能id
+
+
 # 共用部分
 def share_request(titel, data):
     logging.info("=================================================================")
@@ -29,6 +36,19 @@ def share_request(titel, data):
     logging.info("TOKEN的值：{}".format(TOKEN))
     logging.info("KEYS的值：{}".format(KEYS))
     res = ApiRequest().http_request(data["url"], data["parame"], data["Method"], TOKEN, KEYS)
+    response = json.loads(res.text, encoding='utf-8')
+    logging.info("本次请求响应结果如下：")
+    logging.info(response)
+    return response
+
+def share_request_data(titel, data):
+    logging.info("=================================================================")
+    logging.info("api接口测试场景：{}".format(titel))
+    logging.info("===请求参数为：")
+    logging.info(data)
+    logging.info("TOKEN的值：{}".format(TOKEN))
+    logging.info("KEYS的值：{}".format(KEYS))
+    res = ApiRequest().http_request_data(data["url"], data["parame"], data["Method"], TOKEN, KEYS)
     response = json.loads(res.text, encoding='utf-8')
     logging.info("本次请求响应结果如下：")
     logging.info(response)
@@ -106,6 +126,33 @@ def get_box():
 
 # 用户相关
 class TestUserRelated:
+
+    # 批量手机号注册
+    @pytest.mark.login
+    def test_iphone_login(self):
+        iphone_list = []
+        titel = "批量手机号注册"
+        number = 1
+        iphone = int(BaseDef().random_iphone())
+        success_number =0           # 记录注册成功次数
+        while number <=20:
+            data = UserData.api_iphone_login
+            data['parame']['phonenum'] = iphone
+            response = share_request(titel, UserData.api_iphone_login)
+            logging.info("第 {} 次注册。。。手机号为 {}".format(number,iphone))
+            time.sleep(1)
+            if response['code'] == data["expect"]:
+                iphone_list.append(iphone)
+                success_number = success_number+1
+                if success_number >=10:
+                    break
+                logging.info("注册成功！")
+            else:
+                logging.exception("注册失败！")
+            number = number + 1
+            iphone = iphone + 1
+        print(iphone_list)
+        logging.info(iphone_list)
 
     # 手机号注册-输入错误手机号
     @pytest.mark.all
@@ -241,7 +288,7 @@ class TestUserRelated:
                     raise
 
     # 手机号登录-正确场景
-    @pytest.mark.all
+    @pytest.mark.demo
     def test_api_007(self):
         titel = "手机号登录-正确场景"
         logging.info("用例前置：将账号修改密码还原为'{}'".format(api_data.pwd))
@@ -1595,9 +1642,82 @@ class TestGift:
             else:
                 logging.info("筛选后当前列表没有礼物订单！")
 
+# 技能相关
+class TestSkillApi:
+
+    # 获取技能列表
+    @pytest.mark.all
+    def test_skill_api_001(self):
+        titel = "获取技能列表"
+        data = SkillRelatedApi.skill_data_001
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：列表返回数据检查")
+            list_number = len(response['ret'])
+            try:
+                assert response['ret'] is not None
+                random_index = random.randint(0, list_number - 1)
+                logging.info("检查成功，返回有 {} 个技能，其中一个技能为 ‘{}’".format(list_number, response['ret'][random_index]['name']))
+            except:
+                logging.exception("检查失败！ 返回技能数据异常")
+                raise
+
+    # 大神技能列表
+    @pytest.mark.all
+    def test_skill_api_002(self):
+        titel = "大神技能列表"
+        data = SkillRelatedApi.skill_data_002
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：列表返回数据检查")
+            terminal_number = len(response['ret'])      # 分类数量
+            list_number = len(response['ret']["2"]['list'])     # 手游技能数量
+            try:
+                assert list_number is not None
+                random_index = random.randint(0, list_number - 1)
+                player = response['ret']["2"]['list'][random_index]
+                logging.info("检查成功，返回有 {0} 个分类，其中手游的技能有 {1} 个，其中一个大神昵称为 ‘{2}’，对应技能为 ‘{3}’".format(terminal_number, list_number, player['nick_name'],player['skill_name']))
+            except:
+                logging.exception("检查失败！ 返回技能数据异常")
+                raise
+
+    # 个人主页详情-技能
+    @pytest.mark.demo
+    def test_skill_api_003(self):
+        titel = "个人主页详情-技能"
+        data = SkillRelatedApi.skill_data_003
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：技能列表数据")
+            ret = response['ret']
+            try:
+                assert ret is not None
+                logging.info("检查成功，有返回 {} 个技能，其中一个技能是 ‘{}’，对应的skill_id为 '{}'".format(len(ret),ret[0]['skill_name'],ret[0]['skill_id']))
+            except:
+                logging.exception("检查失败，返回数据为空或异常")
+                raise
 
 # 陪玩订单相关
 class TestOrderApi:
+
     @pytest.mark.all
     # 获取大神列表
     def test_order_api_001(self):
@@ -1622,6 +1742,136 @@ class TestOrderApi:
                 raise
 
 
+
+    @pytest.mark.all
+    # 用户提交订单（正确流）
+    def test_order_api_003(self):
+        titel = "用户提交订单（正确流）"
+        # 动态获取大神的技能id
+        data = SkillRelatedApi.skill_data_003
+        response = share_request_data(titel, data)
+        re = response['ret'][random.randint(0,len(response['ret'])-1)]   # 随机选择一个技能
+        global UUID,USID,SKILL_ID
+        UUID = re['uid']
+        SKILL_ID = re['skill_id']
+        USID = re['usid']
+        data = OrderApi.order_data_003
+        data['parame']['receiver'] = UUID
+        data['parame']['skill_id'] = SKILL_ID
+        data['parame']['user_skill_id'] = USID
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：提交成功后返回订单号及订单金额")
+            Order = response['ret']
+            try:
+                assert Order is not None
+                global ORDER_ID
+                ORDER_ID = Order['order_id']
+                logging.info("检查成功。返回的订单号为 {} ，需要付款金额 {} ".format(ORDER_ID, Order['paid_fee']))
+            except:
+                logging.exception("code断言失败了！")
+                raise
+
+    @pytest.mark.all
+    # 用户提交订单（错误流）
+    @pytest.mark.parametrize("data", OrderApi.order_data_002)
+    def test_order_api_002(self, data):
+        titel = "用户提交订单（错误流)-{}".format(data["api_title"])
+        time.sleep(5)
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    @pytest.mark.all
+    # 用户取消订单
+    def test_order_api_004(self):
+        titel = "用户取消订单"
+        data = OrderApi.order_data_004
+        data['parame']['order_id'] = ORDER_ID
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    @pytest.mark.demo
+    # 用户再次提交订单
+    def test_order_api_005(self):
+        titel = "用户再次提交订单"
+        # 动态获取大神的技能id
+        data = SkillRelatedApi.skill_data_003
+        response = share_request_data(titel, data)
+        re = response['ret'][random.randint(0,len(response['ret'])-1)]   # 随机选择一个技能
+        global UUID,USID,SKILL_ID
+        UUID = re['uid']
+        SKILL_ID = re['skill_id']
+        USID = re['usid']
+        data = OrderApi.order_data_003
+        data['parame']['receiver'] = UUID
+        data['parame']['skill_id'] = SKILL_ID
+        data['parame']['user_skill_id'] = USID
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：提交成功后返回订单号及订单金额")
+            Order = response['ret']
+            try:
+                assert Order is not None
+                global ORDER_ID
+                ORDER_ID = Order['order_id']
+                logging.info("检查成功。返回的订单号为 {} ，需要付款金额 {} ".format(ORDER_ID, Order['paid_fee']))
+            except:
+                logging.exception("code断言失败了！")
+                raise
+
+    @pytest.mark.demo
+    # 订单支付-正确流
+    def test_order_api_006(self):
+        titel = "订单支付-正确流"
+        data = OrderApi.order_data_006
+        data['parame']['order_id'] = ORDER_ID
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("支付返回内容检查")
+            re = response['ret']
+            try:
+                assert re is not None and response['message'] == '支付成功'
+                logging.info("支付校验成功")
+            except:
+                logging.exception("支付校验失败了！")
+                raise
+
+
+
+
+
+
+
+
+# 其他
 class TestOtherApi:
 
     # 根据条件获取图文规则列表

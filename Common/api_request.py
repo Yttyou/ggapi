@@ -4,6 +4,7 @@ from Common import logger
 import logging
 import random
 import string
+import json
 
 class ApiRequest:
     # 接口请求头，每个接口必传
@@ -37,7 +38,7 @@ class ApiRequest:
         logging.info(header)
         if Method.upper() == "GET":
             try:
-                response=requests.get(URL,headers=header, params=Param)
+                response=requests.get(URL, headers=header, params=Param)
             except Exception as e:
                 logging.exception("get请求出错：{0}".format(e))
                 raise e
@@ -53,3 +54,24 @@ class ApiRequest:
             response = "请求类型出错了！"
         return response
 
+    def http_request_data(self, URL, Param, Method, Token, keys):
+        header = self.http_headers(Token,keys)
+        logging.info("本次请求头：")
+        logging.info(header)
+        if Method.upper() == "GET":
+            try:
+                response=requests.get(URL, headers=header, params=Param)
+            except Exception as e:
+                logging.exception("get请求出错：{0}".format(e))
+                raise e
+        elif Method.upper() == "POST":
+            try:
+                response=requests.post(URL,headers=header,data=Param,verify=False)
+                logging.info("post接口请求成功！")
+            except Exception as e:
+                logging.exception("post请求出错：{0}".format(e))
+                raise e
+        else:
+            logging.info("请求类型出错了！")
+            response = "请求类型出错了！"
+        return response

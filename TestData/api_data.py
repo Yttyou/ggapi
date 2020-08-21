@@ -1,20 +1,40 @@
 """  用来存储api测试数据  """
 
 from Common.BaseDef import BaseDef
+import time
+import datetime
+
 # 注册/登录手机号
 iphone = '13297025029'
 pwd = 'aaa111'
 new_pwd = 'bbb000'
 update_pwd = '111aaa'
 code_iphone = '13297025057'     # 可接受验证码的手机号
-player_iphone = '13299999999'   # 玩家大神手机号
 
-api_url = "https://ggapi.qwdj.com/"
+player_iphone = '13299999999'   # 玩家大神手机号
+player_pwd = 'qqq111'           # 密码
+
+api_url = "https://ggapi.qwdj.com/"        # 测试服
+# api_url = "https://preggapi.qwdj.com/"        # 预发布
 
 random_number = BaseDef().random_str_china()     # 获取一个随机数
 
 
+stime = int(time.mktime(time.strptime((datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), '%Y-%m-%d %H:%M:%S')))    # 获取1小时后的时间戳
+
 class UserData:
+
+    # 批量手机号登陆注册
+    api_iphone_login = {"url": api_url + "newapi/api/user/register",
+                    "parame": {"account_type": "1",
+                               "password":"c9a1520e172b07abceba847739b664bc",
+                               "phonenum": '',
+                               "verify_code": '1111',
+                               },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
     # 手机号注册_输出错误的手机号
     api_data_001 = {"url": api_url + "newapi/api/user/register",
                     "parame": {"account_type": "1",
@@ -1121,6 +1141,36 @@ class GiftApi:
                      },
                     ]
 
+
+# 技能相关
+class SkillRelatedApi:
+
+    # 获取技能列表
+    skill_data_001 = {"url": api_url + "oldapi/api/skill/skill_list/list",
+                      "parame": {
+                      },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+    # 大神技能列表
+    skill_data_002 = {"url": api_url + "oldapi/api/skill/my_index/group_list",
+                      "parame": {
+                      },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+    # 大神技能列表
+    skill_data_003 = {"url": api_url + "oldapi/api/skill/skill_list/state_visiter",
+                      "parame": {'visiter': 58908854
+                      },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+
+
 # 陪玩订单相关
 class OrderApi:
 
@@ -1131,6 +1181,127 @@ class OrderApi:
                       "Method": "post",
                       "expect": 2000000,
                       }
+
+    # 用户提交订单（错误流）
+    order_data_002 = [{"url": api_url + "oldapi/api/orders/operate_order/submit",
+                       'api_title': "用户id不存在",
+                       "parame": {'receiver': 1000000,
+                                 'skill_id': 57,
+                                 'num': 1,
+                                 'user_skill_id': 7,
+                                 'stime': stime,
+                                 'mark': "api自动化测试",
+                                 },
+                      "Method": "post",
+                      "expect": 2001003,
+                      },
+                      {"url": api_url + "oldapi/api/orders/operate_order/submit",
+                       'api_title': "技能id错误",
+                       "parame": {'receiver': 58908854,
+                                  'skill_id': 88,
+                                  'num': 1,
+                                  'user_skill_id': 7,
+                                  'stime': stime,
+                                  'mark': "api自动化测试",
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                      {"url": api_url + "oldapi/api/orders/operate_order/submit",
+                       'api_title': "数量为0",
+                       "parame": {'receiver': 58908854,
+                                  'skill_id': 57,
+                                  'num': 0,
+                                  'user_skill_id': 7,
+                                  'stime': stime,
+                                  'mark': "api自动化测试",
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                      {"url": api_url + "oldapi/api/orders/operate_order/submit",
+                       'api_title': "数量为-1",
+                       "parame": {'receiver': 58908854,
+                                  'skill_id': 57,
+                                  'num': -1,
+                                  'user_skill_id': 7,
+                                  'stime': stime,
+                                  'mark': "api自动化测试",
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                      {"url": api_url + "oldapi/api/orders/operate_order/submit",
+                       'api_title': "用户技能id错误",
+                       "parame": {'receiver': 58908854,
+                                  'skill_id': 999,
+                                  'num': 1,
+                                  'user_skill_id': 45,
+                                  'stime': stime,
+                                  'mark': "api自动化测试",
+                                  },
+                       "Method": "post",
+                       "expect": 2001003,
+                       },
+                      ]
+
+
+    # 用户提交订单（正确流）
+    order_data_003 = {"url": api_url + "oldapi/api/orders/operate_order/submit",
+                      "parame": {'receiver': '',
+                                 'skill_id': '',
+                                 'num': 1,
+                                 'user_skill_id': '',
+                                 'stime': stime,
+                                 'mark': "api自动化测试",
+                                },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+    # 用户取消订单
+    order_data_004 = {"url": api_url + "oldapi/api/orders/operate_order/cancel_order",
+                      "parame": {'order_id': '',
+                                 "reason": "你好菜，不想玩了，下次再来！"
+                                },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+    # 订单支付-正确流
+    order_data_006 = {"url": api_url + "oldapi/api/orders/operate_order/paysubmitr",
+                      "parame": {'order_id': '',
+                                 "paytype": "3"      # 1-支付宝，2-微信，3-余额
+                                },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1154,4 +1325,5 @@ class OtherApi:
                       "Method": "get",
                       "expect": 2000000,
                     }
+
 
