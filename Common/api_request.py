@@ -66,7 +66,7 @@ class ApiRequest:
                 raise e
         elif Method.upper() == "POST":
             try:
-                response=requests.post(URL,headers=header,data=Param,verify=False)
+                response=requests.post(URL,data=Param,headers=header,verify=False)
                 logging.info("post接口请求成功！")
             except Exception as e:
                 logging.exception("post请求出错：{0}".format(e))
@@ -75,3 +75,4 @@ class ApiRequest:
             logging.info("请求类型出错了！")
             response = "请求类型出错了！"
         return response
+

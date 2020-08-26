@@ -11,8 +11,8 @@ new_pwd = 'bbb000'
 update_pwd = '111aaa'
 code_iphone = '13297025057'     # 可接受验证码的手机号
 
-player_iphone = '13299999999'   # 玩家大神手机号
-player_pwd = 'qqq111'           # 密码
+player_iphone = '13299999999'   # 玩家大神手机号(**注意：这里账号是配套的不能随意更改)
+player_uid = 58908854           # 大神的uid
 
 api_url = "https://ggapi.qwdj.com/"        # 测试服
 # api_url = "https://preggapi.qwdj.com/"        # 预发布
@@ -1163,7 +1163,7 @@ class SkillRelatedApi:
 
     # 大神技能列表
     skill_data_003 = {"url": api_url + "oldapi/api/skill/skill_list/state_visiter",
-                      "parame": {'visiter': 58908854
+                      "parame": {'visiter': player_uid
                       },
                       "Method": "post",
                       "expect": 2000000,
@@ -1268,19 +1268,42 @@ class OrderApi:
                       "expect": 2000000,
                       }
 
-    # 订单支付-正确流
-    order_data_006 = {"url": api_url + "oldapi/api/orders/operate_order/paysubmitr",
-                      "parame": {'order_id': '',
-                                 "paytype": "3"      # 1-支付宝，2-微信，3-余额
-                                },
+    # 查询取消订单状态
+    order_data_004_a = {"url": api_url + "oldapi/api/orders/operate_order/getOrderStu",
+                      "parame": {
+                                 "trade_no": "你好菜，不想玩了，下次再来！"
+                                 },
                       "Method": "post",
                       "expect": 2000000,
                       }
 
+    # 订单支付-正确流
+    order_data_006 = {"url": api_url + "oldapi/api/orders/operate_order/paysubmit",
+                      "parame": {"order_id": "",
+                                 "paytype": "3"  # 1-支付宝，2-微信，3-余额
+                                 },
+                      "Method": "post",
+                      "expect": 2000000,
+                      }
 
+    # 大神登录账号
+    order_data_007_a = {"url": api_url + "newapi/api/user/login",
+                      "parame": {"account_type": "2",
+                                 "phonenum": player_iphone,
+                                 "verify_code": 1111,
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
-
-
+    # 大神同意接单
+    order_data_007_b = {"url": api_url + "oldapi/api/orders/operate_order/take_order",
+                      "parame": {
+                                 "order_id": player_iphone
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
 
 

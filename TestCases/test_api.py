@@ -16,11 +16,14 @@ import time
 
 TOKEN = ''      # 用来存储token
 KEYS = ''       # 用来存储key
+PL_TOKEN = ''   # 用来存储大神的token
+PL_KEYS = ''    # 用来存储大神的key
 ID = ''         # 用来存储用户id或聊天室id
 NICK_NAME = '更改昵称'  # 用来存储用户的昵称
 UUID = ''       # 用来存储UUID
 STATE_ID = ''    # 用来存储动态id
 STATE_USER_ID = '' # 用来存储发送动态用户的id
+TRADE_NO = ''      # 存储订单流失号
 
 SKILL_ID = ''      # 大神的技能ID
 ORDER_ID = ''      # 订单ID
@@ -49,6 +52,34 @@ def share_request_data(titel, data):
     logging.info("TOKEN的值：{}".format(TOKEN))
     logging.info("KEYS的值：{}".format(KEYS))
     res = ApiRequest().http_request_data(data["url"], data["parame"], data["Method"], TOKEN, KEYS)
+    response = json.loads(res.text, encoding='utf-8')
+    logging.info("本次请求响应结果如下：")
+    logging.info(response)
+    return response
+
+# 大神使用的请求(使用的token、key不同)
+def player_share_request(titel, data):
+    logging.info("=================================================================")
+    logging.info("api接口测试场景：{}".format(titel))
+    logging.info("===请求参数为：")
+    logging.info(data)
+    logging.info("TOKEN的值：{}".format(PL_TOKEN))
+    logging.info("KEYS的值：{}".format(PL_KEYS))
+    res = ApiRequest().http_request(data["url"], data["parame"], data["Method"], PL_TOKEN, PL_KEYS)
+    response = json.loads(res.text, encoding='utf-8')
+    logging.info("本次请求响应结果如下：")
+    logging.info(response)
+    return response
+
+# 大神使用的请求(使用的token、key不同)
+def player_share_request_data(titel, data):
+    logging.info("=================================================================")
+    logging.info("api接口测试场景：{}".format(titel))
+    logging.info("===请求参数为：")
+    logging.info(data)
+    logging.info("TOKEN的值：{}".format(PL_TOKEN))
+    logging.info("KEYS的值：{}".format(PL_KEYS))
+    res = ApiRequest().http_request_data(data["url"], data["parame"], data["Method"], PL_TOKEN, PL_KEYS)
     response = json.loads(res.text, encoding='utf-8')
     logging.info("本次请求响应结果如下：")
     logging.info(response)
@@ -1847,7 +1878,7 @@ class TestOrderApi:
         titel = "订单支付-正确流"
         data = OrderApi.order_data_006
         data['parame']['order_id'] = ORDER_ID
-        response = share_request(titel, data)
+        response = share_request_data(titel, data)
         try:
             assert response['code'] == data["expect"]
             logging.info("code断言成功")
@@ -1863,6 +1894,36 @@ class TestOrderApi:
             except:
                 logging.exception("支付校验失败了！")
                 raise
+
+    @pytest.mark.demo
+    # 大神同意接单
+    def test_order_api_007(self):
+        titel = "大神同意接单"
+        logging.info("大神登录账号。。。")
+        data = OrderApi.order_data_007_a
+        response = player_share_request(titel, data)      # 大神登录
+        global PL_TOKEN, PL_KEYS, ID
+        PL_TOKEN = response["ret"]["token"]  # 获取登录的token
+        PL_KEYS = response["ret"]["key"]
+        data = OrderApi.order_data_007_b
+        data['parame']['order_id'] = ORDER_ID
+        response = player_share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+
+
+
+
+
+
+
+
+
 
 
 
