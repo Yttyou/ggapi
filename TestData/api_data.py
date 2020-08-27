@@ -1299,24 +1299,87 @@ class OrderApi:
     # 大神同意接单
     order_data_007_b = {"url": api_url + "oldapi/api/orders/operate_order/take_order",
                       "parame": {
-                                 "order_id": player_iphone
+                                 "order_id": ''
                                  },
                       "Method": "post",
                       "expect": 2000000
                       }
 
+    # 大神点击立即服务
+    order_data_008 = {"url": api_url + "oldapi/api/orders/operate_order/server",
+                      "parame": {
+                                 "order_id": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 用户同意立即服务
+    order_data_009 = {"url": api_url + "oldapi/api/orders/operate_order/agree_server",
+                      "parame": {
+                                 "order_id": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 查询钱包首页-获取余额
+    order_data_010 = {"url": api_url + "newapi/api/userWallet/index",
+                      "parame": {
+                      },
+                      "Method": "get",
+                      "expect": 2000000
+                      }
 
+    # 用户确认完成
+    order_data_011 = {"url": api_url + "oldapi/api/orders/operate_order/done_order",
+                      "parame": {
+                                 "order_id": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 大神拒单
+    order_data_012 = {"url": api_url + "oldapi/api/orders/operate_order/refuse_order",
+                      "parame": {
+                                 "order_id": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 用户拒绝立即服务
+    order_data_013_a = {"url": api_url + "oldapi/api/orders/operate_order/refuse_server",
+                      "parame": {
+                                 "order_id": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 用户申请退款
+    order_data_013_b = {"url": api_url + "newapi/api/gameOrderRefundApply/apply",
+                        "parame": {
+                            "game_order_id": '',      # 陪玩订单id
+                            "apply_reason": "0",
+                            "apply_target": "0",
+                            "target_id": player_uid,
+                            "apply_type": "0"
+                        },
+                        "Method": "post",
+                        "expect": 2000000
+                        }
 
-
-
-
-
-
+    # 大神同意退款
+    order_data_013_c = {"url": api_url + "oldapi/api/orders/operate_refund/agree_refund",
+                      "parame": {
+                                 "order_id": '',
+                                 "rfid": ''
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
 
 

@@ -24,6 +24,9 @@ UUID = ''       # 用来存储UUID
 STATE_ID = ''    # 用来存储动态id
 STATE_USER_ID = '' # 用来存储发送动态用户的id
 TRADE_NO = ''      # 存储订单流失号
+ORDER_AMOUNT = ''   # 存储订单金额
+GB_Amount = ''      # 存储用户的呱币余额
+PL_GB_Amount = ''   # 存储大神当前的呱币收入
 
 SKILL_ID = ''      # 大神的技能ID
 ORDER_ID = ''      # 订单ID
@@ -1725,7 +1728,7 @@ class TestSkillApi:
                 raise
 
     # 个人主页详情-技能
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_skill_api_003(self):
         titel = "个人主页详情-技能"
         data = SkillRelatedApi.skill_data_003
@@ -1771,8 +1774,6 @@ class TestOrderApi:
             except:
                 logging.exception("返回陪玩列表数据为空或异常！")
                 raise
-
-
 
     @pytest.mark.all
     # 用户提交订单（正确流）
@@ -1837,7 +1838,7 @@ class TestOrderApi:
             logging.exception("code断言失败了！")
             raise
 
-    @pytest.mark.demo
+    @pytest.mark.all
     # 用户再次提交订单
     def test_order_api_005(self):
         titel = "用户再次提交订单"
@@ -1865,17 +1866,22 @@ class TestOrderApi:
             Order = response['ret']
             try:
                 assert Order is not None
-                global ORDER_ID
-                ORDER_ID = Order['order_id']
-                logging.info("检查成功。返回的订单号为 {} ，需要付款金额 {} ".format(ORDER_ID, Order['paid_fee']))
+                global ORDER_ID, ORDER_AMOUNT
+                ORDER_ID = Order['order_id']            # 订单id
+                ORDER_AMOUNT = Order['paid_fee']        # 订单金额
+                logging.info("检查成功。返回的订单号为 {} ，需要付款金额 {} ".format(ORDER_ID, ORDER_AMOUNT))
             except:
                 logging.exception("code断言失败了！")
                 raise
 
-    @pytest.mark.demo
-    # 订单支付-正确流
+    @pytest.mark.all
+    # 订单支付并检查呱币扣除数量-正确流
     def test_order_api_006(self):
-        titel = "订单支付-正确流"
+        titel = "订单支付并检查呱币扣除数量-正确流"
+        logging.info("获取用户支付前的呱币余额")
+        data = OrderApi.order_data_010
+        response = share_request_data(titel, data)
+        GB_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']    # 支付前用户的呱币余额
         data = OrderApi.order_data_006
         data['parame']['order_id'] = ORDER_ID
         response = share_request_data(titel, data)
@@ -1886,16 +1892,18 @@ class TestOrderApi:
             logging.exception("code断言失败了！")
             raise
         else:
-            logging.info("支付返回内容检查")
-            re = response['ret']
+            logging.info("支付后，扣除金额校验")
+            data = OrderApi.order_data_010
+            response = share_request_data(titel, data)
+            Rear_GB_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']  # 支付后用户的呱币余额
             try:
-                assert re is not None and response['message'] == '支付成功'
-                logging.info("支付校验成功")
+                assert float(GB_Amount) - float(Rear_GB_Amount) == float(ORDER_AMOUNT)
+                logging.info("检查成功，支付前呱币余额为 {0},订单金额为 {1},支付后呱币金额为 {2}".format(GB_Amount, ORDER_AMOUNT, Rear_GB_Amount))
             except:
-                logging.exception("支付校验失败了！")
+                logging.info("检查失败！！支付前呱币余额为 {0},订单金额为 {1},支付后呱币金额为 {2}".format(GB_Amount, ORDER_AMOUNT, Rear_GB_Amount))
                 raise
 
-    @pytest.mark.demo
+    @pytest.mark.all
     # 大神同意接单
     def test_order_api_007(self):
         titel = "大神同意接单"
@@ -1914,6 +1922,251 @@ class TestOrderApi:
         except:
             logging.exception("code断言失败了！")
             raise
+
+    @pytest.mark.all
+    # 大神点击立即服务
+    def test_order_api_008(self):
+        titel = "大神点击立即服务"
+        data = OrderApi.order_data_008
+        data['parame']['order_id'] = ORDER_ID
+        logging.info("获取到的订单号为： {}".format(ORDER_ID))
+        response = player_share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    @pytest.mark.all
+    # 用户同意立即服务
+    def test_order_api_009(self):
+        titel = "用户同意立即服务"
+        data = OrderApi.order_data_009
+        data['parame']['order_id'] = ORDER_ID
+        logging.info("获取到的订单号为： {}".format(ORDER_ID))
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 大神查询钱包首页-获取呱币收入
+    @pytest.mark.all
+    def test_order_api_010(self):
+        titel = "大神查询钱包首页-获取呱币收入"
+        data = OrderApi.order_data_010
+        response = player_share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：余额数据返回")
+
+            try:
+                assert response['ret'] is not None
+                global PL_GB_Amount
+                PL_GB_Amount = response['ret']["user_wallet_frog_coin_income"]["valid_value"]
+                logging.info("检查成功。余额有返回数据，当前大神的呱币收入余额为：{}".format(PL_GB_Amount))
+            except:
+                logging.exception("检查失败！数据返回异常")
+                raise
+
+    # 用户确认完成并检查佣金到账
+    @pytest.mark.all
+    def test_order_api_011(self):
+        titel = "用户确认完成并检查佣金到账"
+        data = OrderApi.order_data_011
+        data['parame']['order_id'] = ORDER_ID
+        logging.info("获取到的订单号为： {}".format(ORDER_ID))
+        time.sleep(5)
+        response = share_request_data(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：大神的呱币收入到账是否准确")
+            logging.info("订单确认前，大神的呱币收入为：{}".format(PL_GB_Amount))
+            logging.info("当前订单金额为：{}".format(ORDER_AMOUNT))
+            data = OrderApi.order_data_010
+            response = player_share_request_data(titel, data)
+            Rear_PL_GB_Amount = response['ret']["user_wallet_frog_coin_income"]["valid_value"]  # 订单确认后大神的呱币收入
+            try:
+                assert ORDER_AMOUNT * 0.8 + float(PL_GB_Amount) == float(Rear_PL_GB_Amount)
+                logging.info("检查成功。大神收入到账准确，明细：下单前呱币收入为 {}，订单金额为 {}，订单确认后呱币收入为 {}".format(PL_GB_Amount,ORDER_AMOUNT,Rear_PL_GB_Amount))
+            except:
+                logging.exception("检查失败，大神到账呱币不准确或异常！")
+                raise
+
+    # 用户提交订单并支付，大神拒单
+    @pytest.mark.demo
+    def test_order_api_012(self):
+        # 用户提交订单并支付，大神拒单
+        titel = '下单前查询用户呱币余额'
+        logging.info("用户下单前查询呱币余额。。。")
+        data = OrderApi.order_data_010
+        response = share_request_data(titel, data)
+        GB_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']  # 支付前用户的呱币余额
+
+        titel = '用户下单'
+        data = SkillRelatedApi.skill_data_003
+        response = share_request_data(titel, data)
+        re = response['ret'][random.randint(0, len(response['ret']) - 1)]  # 随机选择一个技能
+        global UUID, USID, SKILL_ID
+        UUID = re['uid']
+        SKILL_ID = re['skill_id']
+        USID = re['usid']
+        data = OrderApi.order_data_003
+        data['parame']['receiver'] = UUID
+        data['parame']['skill_id'] = SKILL_ID
+        data['parame']['user_skill_id'] = USID
+        response = share_request_data(titel, data)
+        global ORDER_ID, ORDER_AMOUNT
+        ORDER_ID = response['ret']['order_id']            # 订单id
+        ORDER_AMOUNT = response['ret']['paid_fee']        # 订单金额
+
+        titel = '用户支付订单'
+        data = OrderApi.order_data_006
+        data['parame']['order_id'] = ORDER_ID
+        response = share_request_data(titel, data)
+
+        titel = '大神拒单'
+        logging.info("大神登录账号。。。")
+        data = OrderApi.order_data_007_a
+        response = player_share_request(titel, data)      # 大神登录
+        global PL_TOKEN, PL_KEYS, ID
+        PL_TOKEN = response["ret"]["token"]  # 获取登录的token
+        PL_KEYS = response["ret"]["key"]
+        data = OrderApi.order_data_012      # 拒单接口数据
+        data['parame']['order_id'] = ORDER_ID
+        response = player_share_request_data(titel, data)
+        try:
+            assert response["code"] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：订单金额原路返回至用户账号中")
+            data = OrderApi.order_data_010
+            response = share_request_data(titel, data)
+            GB_Refund_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']  # 退款后用户的呱币余额
+            try:
+                assert GB_Refund_Amount == GB_Amount      # 退款后余额 = 支付前余额
+                logging.info("检查成功，退款金额准确")
+            except:
+                logging.exception("检查失败！支付前用户的呱币余额为 {},退款后余额为 {}".format(GB_Amount, GB_Refund_Amount))
+                raise
+
+    # 用户提交订单并支付-大神接单-大神发起立即服务-用户拒绝（申请退款）-大神同意退款
+    @pytest.mark.demo
+    def test_order_api_013(self):
+        titel = '下单前查询用户呱币余额'
+        logging.info("用户下单前查询呱币余额。。。")
+        data = OrderApi.order_data_010
+        response = share_request_data(titel, data)
+        GB_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']  # 支付前用户的呱币余额
+
+        titel = '用户下单'
+        data = SkillRelatedApi.skill_data_003
+        response = share_request_data(titel, data)
+        re = response['ret'][random.randint(0, len(response['ret']) - 1)]  # 随机选择一个技能
+        global UUID, USID, SKILL_ID
+        UUID = re['uid']
+        SKILL_ID = re['skill_id']
+        USID = re['usid']
+        data = OrderApi.order_data_003
+        data['parame']['receiver'] = UUID
+        data['parame']['skill_id'] = SKILL_ID
+        data['parame']['user_skill_id'] = USID
+        response = share_request_data(titel, data)
+        global ORDER_ID, ORDER_AMOUNT
+        ORDER_ID = response['ret']['order_id']            # 订单id
+        ORDER_AMOUNT = response['ret']['paid_fee']        # 订单金额
+
+        titel = '用户支付订单'
+        data = OrderApi.order_data_006
+        data['parame']['order_id'] = ORDER_ID
+        response = share_request_data(titel, data)
+
+        titel = "大神同意接单"
+        logging.info("大神登录账号。。。")
+        data = OrderApi.order_data_007_a
+        response = player_share_request(titel, data)  # 大神登录
+        global PL_TOKEN, PL_KEYS, ID
+        PL_TOKEN = response["ret"]["token"]  # 获取登录的token
+        PL_KEYS = response["ret"]["key"]
+        data = OrderApi.order_data_007_b
+        data['parame']['order_id'] = ORDER_ID
+        response = player_share_request_data(titel, data)
+
+        titel = "大神发起立即服务"
+        data = OrderApi.order_data_008
+        data['parame']['order_id'] = ORDER_ID
+        logging.info("获取到的订单号为： {}".format(ORDER_ID))
+        response = player_share_request_data(titel, data)
+
+        titel = "用户拒绝立即服务（申请退款）"
+        data = OrderApi.order_data_013_a
+        data['parame']['order_id'] = ORDER_ID
+        response = share_request_data(titel, data)
+        try:
+            assert response["code"] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            titel = '用户申请退款'
+            data = OrderApi.order_data_013_b
+            data['parame']['game_order_id'] = ORDER_ID
+            response = share_request_data(titel, data)
+            try:
+                assert response["code"] == data["expect"]
+                rf_id = response["ret"]["id"]           # 获取申诉id
+                logging.info("检查成功，用户申请退款正常，申诉ID为 {}".format(rf_id))
+            except:
+                logging.exception("检查失败，用户申请退款有异常！")
+                raise
+            else:
+                titel = "大神同意退款"
+                data = OrderApi.order_data_013_c
+                data['parame']['order_id'] = ORDER_ID
+                data['parame']['rfid'] = rf_id
+                logging.info("获取到的订单号为： {}".format(ORDER_ID))
+                response = player_share_request_data(titel, data)
+                try:
+                    assert response["code"] == data["expect"]
+                    logging.info("检查成功，退款正常")
+                except:
+                    logging.exception("检查失败，退款失败")
+                    raise
+                else:
+                    data = OrderApi.order_data_010
+                    response = share_request_data(titel, data)
+                    GB_Refund_Amount = response['ret']['user_wallet_frog_coin_stored']['valid_value']  # 退款后用户的呱币余额
+                    logging.info("检查退款呱币是否准确退回")
+                    try:
+                        assert GB_Refund_Amount == GB_Amount  # 退款余额 = 支付前余额
+                        logging.info("检查成功，退款金额准确")
+                    except:
+                        logging.exception("检查失败！支付前用户的呱币余额为 {},退款后余额为 {}".format(GB_Amount, GB_Refund_Amount))
+                        raise
+
+
+
+
+
+
+
 
 
 
