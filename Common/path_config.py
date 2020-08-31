@@ -14,5 +14,9 @@ logs_path = os.path.join(base_path,"Logs")
 # 测试数据路径
 testdatas_path = os.path.join(base_path,"TestData")
 
+# 测试文件（上传的图片或视频存放路径）
+testdatafile_path = os.path.join(testdatas_path,"file")
+
 # 测试用例路径
 testcases_path = os.path.join(base_path,"TestCases")
+

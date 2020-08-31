@@ -14,8 +14,8 @@ code_iphone = '13297025057'     # 可接受验证码的手机号
 player_iphone = '13299999999'   # 玩家大神手机号(**注意：这里账号是配套的不能随意更改)
 player_uid = 58908854           # 大神的uid
 
-api_url = "https://ggapi.qwdj.com/"        # 测试服
-# api_url = "https://preggapi.qwdj.com/"        # 预发布
+# api_url = "https://ggapi.qwdj.com/"        # 测试服
+api_url = "https://preggapi.qwdj.com/"        # 预发布
 
 random_number = BaseDef().random_str_china()     # 获取一个随机数
 

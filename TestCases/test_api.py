@@ -178,7 +178,7 @@ class TestUserRelated:
             if response['code'] == data["expect"]:
                 iphone_list.append(iphone)
                 success_number = success_number+1
-                if success_number >=10:
+                if success_number >=3:
                     break
                 logging.info("注册成功！")
             else:
@@ -322,7 +322,7 @@ class TestUserRelated:
                     raise
 
     # 手机号登录-正确场景
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_007(self):
         titel = "手机号登录-正确场景"
         logging.info("用例前置：将账号修改密码还原为'{}'".format(api_data.pwd))
@@ -2007,7 +2007,7 @@ class TestOrderApi:
                 raise
 
     # 用户提交订单并支付，大神拒单
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_order_api_012(self):
         # 用户提交订单并支付，大神拒单
         titel = '下单前查询用户呱币余额'
@@ -2067,7 +2067,7 @@ class TestOrderApi:
                 raise
 
     # 用户提交订单并支付-大神接单-大神发起立即服务-用户拒绝（申请退款）-大神同意退款
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_order_api_013(self):
         titel = '下单前查询用户呱币余额'
         logging.info("用户下单前查询呱币余额。。。")
@@ -2160,29 +2160,6 @@ class TestOrderApi:
                     except:
                         logging.exception("检查失败！支付前用户的呱币余额为 {},退款后余额为 {}".format(GB_Amount, GB_Refund_Amount))
                         raise
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # 其他
