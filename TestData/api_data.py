@@ -12,13 +12,15 @@ update_pwd = '111aaa'
 code_iphone = '13297025057'     # 可接受验证码的手机号
 
 player_iphone = '13299999999'   # 玩家大神手机号(**注意：这里账号是配套的不能随意更改)
-player_uid = 58908854           # 大神的uid
+player_uid = 75766566           # 大神的uid
+
+Room_iphone = '18602753258'     # 房主账号
+Room_id = '1200064'             # 聊天室id
 
 # api_url = "https://ggapi.qwdj.com/"        # 测试服
 api_url = "https://preggapi.qwdj.com/"        # 预发布
 
 random_number = BaseDef().random_str_china()     # 获取一个随机数
-
 
 stime = int(time.mktime(time.strptime((datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), '%Y-%m-%d %H:%M:%S')))    # 获取1小时后的时间戳
 
@@ -566,6 +568,139 @@ class ChatRoomApi:
                     "Method": "get",
                     "expect": 2001003,
                     }
+
+    # 用户A登录
+    api_data_040_a = {"url": api_url + "newapi/api/user/login",
+                       "parame": {"account_type": "2",
+                                  "phonenum": '13259512655',
+                                  "verify_code": 1111,
+                                  },
+                       "Method": "post",
+                       "expect": 2000000
+                      }
+
+    # 用户B登录
+    api_data_041_a = {"url": api_url + "newapi/api/user/login",
+                      "parame": {"account_type": "2",
+                                 "phonenum": '13259512656',
+                                 "verify_code": 1111,
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 用户C登录
+    api_data_042_a = {"url": api_url + "newapi/api/user/login",
+                      "parame": {"account_type": "2",
+                                 "phonenum": '13259512657',
+                                 "verify_code": 1111,
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 上麦申请
+    api_data_040 = {"url": api_url + "newapi/api/chatroomMikeApply/apply",
+                       "parame": {
+                                  "chatroom_id": Room_id,
+                                  "type": 1
+                                  },
+                       "Method": "post",
+                       "expect": 2000000
+                      }
+
+    # 用户取消申请上麦
+    api_data_040_b = {"url": api_url + "newapi/api/chatroomMikeApply/cancel",
+                       "parame": {
+                                  "chatroom_id": Room_id
+                                  },
+                       "Method": "post",
+                       "expect": 2000000
+                      }
+
+    # 用户C加入房间
+    api_data_040_c = {"url": api_url + "newapi/api/chatroom/join",
+                      "parame": {
+                          "chatroom_id": Room_id
+                      },
+                      "Method": "get",
+                      "expect": 2000000
+                      }
+
+    # 房主登录
+    api_data_Homeowner_login = {"url": api_url + "newapi/api/user/login",
+                                "parame": {"account_type": "2",
+                                            "phonenum": Room_iphone,
+                                            "verify_code": 1111,
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
+
+    # 房主开启聊天室
+    api_data_043 = {"url": api_url + "newapi/api/chatroomAdmin/chatroom/open",
+                                "parame": {
+                                            "type": "31"
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
+
+    # 获取聊天室麦位申请列表
+    api_data_044 = {"url": api_url + "newapi/api/chatroomMikeApply/getListByCon",
+                                "parame": {
+                                            "chatroom_id": Room_id
+                                            },
+                                "Method": "get",
+                                "expect": 2000000
+                                }
+
+    # 房主将用户A取消主持
+    api_data_045_a = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMc/cancelMc",
+                        "parame": {
+                                    "chatroom_id": Room_id,
+                                    "user_id": ''
+                                    },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 房主将用户A设置为主持
+    api_data_045_b = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMc/setMc",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "user_id": ''
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
+
+    # 获取聊天室主持列表
+    api_data_046 = {"url": api_url + "newapi/api/chatroomMc/getListByCon",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            },
+                                "Method": "get",
+                                "expect": 2000000
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 礼物相关测试数据

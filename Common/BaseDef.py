@@ -2,6 +2,7 @@
 import random
 
 class BaseDef:
+
     # 随机生成字符串
     def random_str_china(self):
         val = random.randint(0x4e00, 0x9fbf)
