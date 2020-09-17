@@ -28,6 +28,9 @@ ORDER_AMOUNT = ''   # 存储订单金额
 GB_Amount = ''      # 存储用户的呱币余额
 PL_GB_Amount = ''   # 存储大神当前的呱币收入
 
+BY_MIC_ID = []     # 房主通过用户上麦麦位id
+MIC_USER_ID = ''    # 麦位上的用户id
+
 SKILL_ID = ''      # 大神的技能ID
 ORDER_ID = ''      # 订单ID
 USID = ''          # 技能id
@@ -35,6 +38,8 @@ USID = ''          # 技能id
 chat_item_list = []        # 聊天室麦位列表
 user_A_udid = ''           # 房间中用户A的udid
 user_B_udid = ''           # 房间中用户B的udid
+
+APPLY_MIKE_USER_list = ''    # 申请上麦列表
 
 # 共用部分
 def share_request(titel, data):
@@ -159,6 +164,13 @@ def get_box():
     logging.info("第一个礼盒名称为 ‘{}’，礼盒id为 ‘{}’".format(gift_name, box_id))
     return box_id  # 返回礼盒id
 
+# 将数据写入文件
+def text_save(filename, data):#filename为写入CSV文件的路径，data为要写入数据列表.
+    file = open(filename,'a')
+    file.writelines(data)
+    file.close()
+    print("保存文件成功")
+
 """  以下是测试用例   """
 
 # 用户相关
@@ -172,16 +184,20 @@ class TestUserRelated:
         number = 1
         iphone = int(BaseDef().random_iphone())
         success_number =0           # 记录注册成功次数
-        while number <=20:
+        while number <=10:
             data = UserData.api_iphone_login
             data['parame']['phonenum'] = iphone
             response = share_request(titel, UserData.api_iphone_login)
             logging.info("第 {} 次注册。。。手机号为 {}".format(number,iphone))
             time.sleep(1)
             if response['code'] == data["expect"]:
+                token = response["ret"]["token"]  # 获取登录的token
+                key = response["ret"]["key"]
+                data = token+","+key+"\n"
+                text_save('F:\API_TEST\TestData\sd.csv', data)
                 iphone_list.append(iphone)
                 success_number = success_number+1
-                if success_number >=3:
+                if success_number >=10:
                     break
                 logging.info("注册成功！")
             else:
@@ -325,7 +341,7 @@ class TestUserRelated:
                     raise
 
     # 手机号登录-正确场景
-    @pytest.mark.all
+    @pytest.mark.demo
     def test_api_007(self):
         titel = "手机号登录-正确场景"
         logging.info("用例前置：将账号修改密码还原为'{}'".format(api_data.pwd))
@@ -1239,6 +1255,8 @@ class TestChatRoom:
             number = len(response['ret']['data'])
             try:
                 assert number > 0
+                global APPLY_MIKE_USER_list
+                APPLY_MIKE_USER_list = response['ret']['data']
                 logging.info("检查成功，当前房间申请上麦人数为 {}。".format(number))
             except:
                 logging.exception("检查失败！返回的聊天室信息为空或异常")
@@ -1273,6 +1291,166 @@ class TestChatRoom:
         except:
             logging.exception("code断言失败了！")
             raise
+
+    # 聊天室中查看用户信息
+    @pytest.mark.demo
+    def test_api_047(self):
+        titel = "聊天室中查看用户信息"
+        data = ChatRoomApi.api_data_047
+        data['parame']['user_id'] = APPLY_MIKE_USER_list[0]['user_id']
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：返回数据")
+            try:
+                assert len(response['ret'])> 0
+                nick_name = response['ret']['user']['nick_name']
+                logging.info("检查成功，被查看的用户昵称为 {}".format(nick_name))
+            except:
+                logging.exception("检查失败！聊天室中查看用户信息异常")
+                raise
+
+    # 房主更新聊天室信息
+    @pytest.mark.demo
+    def test_api_048(self):
+        titel = "房主更新聊天室信息"
+        data = ChatRoomApi.api_data_048
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：修改房间数据后是否生效")
+            try:
+                assert response['ret']['name'] == data["parame"]['name']
+                logging.info("检查成功，修改房间名称正常")
+            except:
+                logging.exception("检查失败！修改房间名称错误！")
+                raise
+
+    # 房主设置麦位锁定/取消
+    @pytest.mark.demo
+    def test_api_048_a(self):
+        titel = "房主设置麦位锁定"
+        data = ChatRoomApi.api_data_048_a
+        logging.info("获取到当前聊天室中麦位信息如下：")
+        logging.info(chat_item_list)
+        chatroom_mike_id = chat_item_list[0]['id']
+        data['parame']['chatroom_mike_id'] = chatroom_mike_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            time.sleep(3)
+            titel = "房主设置麦位锁定取消"
+            data = ChatRoomApi.api_data_048_b
+            data['parame']['chatroom_mike_id'] = chatroom_mike_id
+            response = share_request(titel, data)
+            try:
+                assert response['code'] == data["expect"]
+                logging.info("code断言成功")
+            except:
+                logging.exception("code断言失败了！")
+                raise
+
+    # 房主给与申请上麦通过
+    @pytest.mark.demo
+    def test_api_049(self):
+        time.sleep(3)
+        titel = "房主给与申请上麦通过"
+        data = ChatRoomApi.api_data_049
+        logging.info("获取到当前聊天室中麦位申请列表信息如下：")
+        logging.info(  APPLY_MIKE_USER_list )
+        data['parame']['chatroom_mike_apply_id'] = APPLY_MIKE_USER_list[0]['id']
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：通过申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                global BY_MIC_ID, MIC_USER_ID
+                BY_MIC_ID = response['ret']['id']
+                MIC_USER_ID = response['ret']['user_id']
+                logging.info("检查成功，通过申请后有返回数据")
+            except:
+                logging.exception("检查失败！通过申请后有返回数据！")
+                raise
+
+    # 房主给与申请上麦驳回
+    @pytest.mark.demo
+    def test_api_050(self):
+        titel = "房主给与申请上麦驳回"
+        data = ChatRoomApi.api_data_050
+        data['parame']['chatroom_mike_apply_id'] = APPLY_MIKE_USER_list[1]['id']
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：驳回申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                logging.info("检查成功，驳回申请后有返回数据")
+            except:
+                logging.exception("检查失败！驳回申请后有返回数据！")
+                raise
+
+    # 房主将用户抱下麦
+    @pytest.mark.demo
+    def test_api_051(self):
+        time.sleep(3)
+        titel = "房主将用户抱下麦"
+        logging.info("获取当前聊天室麦位信息情况。。。")
+        data = ChatRoomApi.api_data_040_c
+        response = share_request(titel, data)
+        global chat_item_list
+        chat_item_list = response['ret']['chatroom_mike_array']  # 获取聊天室的麦位信息
+        for item,mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_051
+        logging.info("获取到当前聊天室中麦上有用户的麦位id及user_id分别为：{}，{}".format(mic_id, user_id))
+        data['parame']['user_id'] = user_id
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：通过申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                logging.info("检查成功，通过申请后有返回数据")
+            except:
+                logging.exception("检查失败！通过申请后有返回数据！")
+                raise
+
+
 
 
 
@@ -1533,7 +1711,7 @@ class TestGift:
     # ==================   聊天室送礼物  =======================
 
     # 聊天室送钻石礼物(正确流)
-    @pytest.mark.all
+    @pytest.mark.ytt
     @pytest.mark.parametrize("data_api", GiftApi.api_data_061_c)
     def test_api_061(self, data_api):
         titel = "聊天室送钻石礼物(正确流)"

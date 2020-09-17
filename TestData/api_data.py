@@ -684,16 +684,76 @@ class ChatRoomApi:
                                 "expect": 2000000
                                 }
 
+    # 聊天室中查看用户信息
+    api_data_047 = {"url": api_url + "newapi/api/chatroom/user",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "user_id": ''
+                                            },
+                                "Method": "get",
+                                "expect": 2000000
+                                }
 
+    # 房主更新聊天室信息
+    api_data_048 = {"url": api_url + "newapi/api/chatroomAdmin/chatroom/edit",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "name": '直播间-'+BaseDef().random_str_china()
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
 
+    # 房主给与申请上麦通过
+    api_data_049 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMikeApply/approve",
+                    "parame": {
+                        "user_id" : '',
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_apply_id": ''  # 麦位申请编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
 
+    # 房主设置麦位锁定
+    api_data_048_a = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMike/setLock",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "chatroom_mike_id": ''        # 麦位编号
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
 
+    # 房主设置麦位锁定取消
+    api_data_048_b = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMike/cancelLock",
+                      "parame": {
+                          "chatroom_id": Room_id,
+                          "chatroom_mike_id": ''  # 麦位编号
+                      },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
 
+    # 房主给与申请上麦驳回
+    api_data_050 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMikeApply/reject",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "chatroom_mike_apply_id": ''        # 麦位申请编号
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
 
-
-
-
-
+    # 房主将用户抱下麦
+    api_data_051 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMike/underMike",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_id": ''  # 麦位编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
 
 
 

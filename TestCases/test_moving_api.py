@@ -267,7 +267,6 @@ class TestMovingApi:
             logging.exception("code断言失败了！")
             raise
 
-
     # 广场-关注-关注动态展示位
     @pytest.mark.all
     def test_api_004(self):
@@ -280,7 +279,6 @@ class TestMovingApi:
         except:
             logging.exception("code断言失败了！")
             raise
-
 
     # 动态详情
     @pytest.mark.all
