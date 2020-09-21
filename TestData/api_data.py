@@ -599,6 +599,16 @@ class ChatRoomApi:
                       "expect": 2000000
                       }
 
+    # 用户D登录
+    api_data_042_d = {"url": api_url + "newapi/api/user/login",
+                      "parame": {"account_type": "2",
+                                 "phonenum": '13259512658',
+                                 "verify_code": 1111,
+                                 },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
     # 上麦申请
     api_data_040 = {"url": api_url + "newapi/api/chatroomMikeApply/apply",
                        "parame": {
@@ -618,7 +628,7 @@ class ChatRoomApi:
                        "expect": 2000000
                       }
 
-    # 用户C加入房间
+    # 用户加入房间
     api_data_040_c = {"url": api_url + "newapi/api/chatroom/join",
                       "parame": {
                           "chatroom_id": Room_id
@@ -735,6 +745,26 @@ class ChatRoomApi:
                       "expect": 2000000
                       }
 
+    # 房主设置麦位闭麦
+    api_data_049_a = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMike/setClose",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_id": ''    # 麦位编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 房主取消麦位闭麦
+    api_data_049_b = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMike/cancelClose",
+                      "parame": {
+                          "chatroom_id": Room_id,
+                          "chatroom_mike_id": ''  # 麦位编号
+                      },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
     # 房主给与申请上麦驳回
     api_data_050 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMikeApply/reject",
                                 "parame": {
@@ -754,6 +784,168 @@ class ChatRoomApi:
                     "Method": "post",
                     "expect": 2000000
                     }
+
+    # 房主对用户设置禁言
+    api_data_052 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMuteUser/setMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "user_id": 74438422,
+                        "is_forever": 1,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 房主对用户取消禁言
+    api_data_053 = {"url": api_url + "newapi/api/chatroomAdmin/chatroomMuteUser/cancelMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "user_id": 74438422,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 房主设置聊天室禁言
+    api_data_053_a = {"url": api_url + "newapi/api/chatroomAdmin/chatroom/setMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 房主取消聊天室禁言
+    api_data_053_b = {"url": api_url + "newapi/api/chatroomAdmin/chatroom/cancelMute",
+                      "parame": {
+                          "chatroom_id": Room_id,
+                      },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 主持清空聊天室麦位宠爱值
+    api_data_054 = {"url": api_url + "newapi/api/chatroomMc/chatroom/emptyMikeDoteValue",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持给与申请上麦通过
+    api_data_055 = {"url": api_url + "newapi/api/chatroomMc/chatroomMikeApply/approve",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_apply_id": ''  # 麦位申请编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持设置麦位锁定
+    api_data_056 = {"url": api_url + "newapi/api/chatroomMc/chatroomMike/setLock",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "chatroom_mike_id": ''        # 麦位编号
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
+
+    # 主持设置麦位锁定取消
+    api_data_056_a = {"url": api_url + "newapi/api/chatroomMc/chatroomMike/cancelLock",
+                      "parame": {
+                          "chatroom_id": Room_id,
+                          "chatroom_mike_id": ''  # 麦位编号
+                      },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 主持设置麦位闭麦
+    api_data_057 = {"url": api_url + "newapi/api/chatroomMc/chatroomMike/setClose",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_id": ''    # 麦位编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持取消麦位闭麦
+    api_data_058 = {"url": api_url + "newapi/api/chatroomMc/chatroomMike/cancelClose",
+                      "parame": {
+                          "chatroom_id": Room_id,
+                          "chatroom_mike_id": ''  # 麦位编号
+                      },
+                      "Method": "post",
+                      "expect": 2000000
+                      }
+
+    # 主持给与申请上麦驳回
+    api_data_059 = {"url": api_url + "newapi/api/chatroomMc/chatroomMikeApply/reject",
+                                "parame": {
+                                            "chatroom_id": Room_id,
+                                            "chatroom_mike_apply_id": ''        # 麦位申请编号
+                                            },
+                                "Method": "post",
+                                "expect": 2000000
+                                }
+
+    # 主持将用户抱下麦
+    api_data_060 = {"url": api_url + "newapi/api/chatroomMc/chatroomMike/underMike",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "chatroom_mike_id": ''  # 麦位编号
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持对用户设置禁言
+    api_data_061 = {"url": api_url + "newapi/api/chatroomMc/chatroomMuteUser/setMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "user_id": 74438422,
+                        "is_forever": 1,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持对用户取消禁言
+    api_data_062 = {"url": api_url + "newapi/api/chatroomMc/chatroomMuteUser/cancelMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                        "user_id": 74438422,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持设置聊天室禁言
+    api_data_063 = {"url": api_url + "newapi/api/chatroomMc/chatroom/setMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+    # 主持取消聊天室禁言
+    api_data_064 = {"url": api_url + "newapi/api/chatroomMc/chatroom/cancelMute",
+                    "parame": {
+                        "chatroom_id": Room_id,
+                    },
+                    "Method": "post",
+                    "expect": 2000000
+                    }
+
+
+
+
+
 
 
 

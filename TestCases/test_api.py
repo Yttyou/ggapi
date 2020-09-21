@@ -184,7 +184,7 @@ class TestUserRelated:
         number = 1
         iphone = int(BaseDef().random_iphone())
         success_number =0           # 记录注册成功次数
-        while number <=10:
+        while number <=50:
             data = UserData.api_iphone_login
             data['parame']['phonenum'] = iphone
             response = share_request(titel, UserData.api_iphone_login)
@@ -197,7 +197,7 @@ class TestUserRelated:
                 text_save('F:\API_TEST\TestData\sd.csv', data)
                 iphone_list.append(iphone)
                 success_number = success_number+1
-                if success_number >=10:
+                if success_number >=50:
                     break
                 logging.info("注册成功！")
             else:
@@ -341,6 +341,9 @@ class TestUserRelated:
                     raise
 
     # 手机号登录-正确场景
+    @pytest.mark.ytt
+    @pytest.mark.gift
+    @pytest.mark.play
     @pytest.mark.demo
     def test_api_007(self):
         titel = "手机号登录-正确场景"
@@ -1186,12 +1189,17 @@ class TestChatRoom:
     # 用户C登录，并加入房间获取麦位列表
     @pytest.mark.demo
     def test_api_042(self):
-        titel = "用户B登录"
+        titel = "用户C登录"
         data = ChatRoomApi.api_data_042_a
         response = share_request(titel, data)
         global TOKEN, KEYS
         TOKEN = response["ret"]["token"]  # 获取登录的token
         KEYS = response["ret"]["key"]
+
+        titel = "用户C申请上麦"
+        data = ChatRoomApi.api_data_040
+        response = share_request(titel, data)
+
         titel = "加入房间"
         data = ChatRoomApi.api_data_040_c
         response = share_request(titel, data)
@@ -1207,6 +1215,44 @@ class TestChatRoom:
                 assert len(response['ret']) > 0
                 global chat_item_list
                 chat_item_list = response['ret']['chatroom_mike_array']  # 获取聊天室的麦位信息
+            except:
+                logging.exception("返回数据为空或异常！")
+                raise
+
+    # 用户D登录，并发起上麦申请
+    @pytest.mark.demo
+    def test_api_042_d(self):
+        titel = "用户D登录"
+        data = ChatRoomApi.api_data_042_d
+        response = share_request(titel, data)
+        global TOKEN, KEYS, user_B_udid
+        TOKEN = response["ret"]["token"]  # 获取登录的token
+        KEYS = response["ret"]["key"]
+        user_B_udid = response["ret"]["id"]
+        titel = "用户B取消申请上麦"  # 为了保证用户是没有申请上麦的，所以这里需要做取消申请下麦处理
+        data = ChatRoomApi.api_data_040_b
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        time.sleep(3)
+        titel = "用户D申请上麦"
+        data = ChatRoomApi.api_data_040
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查数据返回")
+            try:
+                assert len(response['ret']) > 0
+                logging.info("返回数据成功，当前聊天室申请麦位数为 {} ".format(response['ret']['chatroom_mike_general_apply_num']))
             except:
                 logging.exception("返回数据为空或异常！")
                 raise
@@ -1280,7 +1326,7 @@ class TestChatRoom:
             raise
 
     # 获取聊天室主持列表
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_046(self):
         titel = "获取聊天室主持列表"
         data = ChatRoomApi.api_data_046
@@ -1293,7 +1339,7 @@ class TestChatRoom:
             raise
 
     # 聊天室中查看用户信息
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_047(self):
         titel = "聊天室中查看用户信息"
         data = ChatRoomApi.api_data_047
@@ -1316,7 +1362,7 @@ class TestChatRoom:
                 raise
 
     # 房主更新聊天室信息
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_048(self):
         titel = "房主更新聊天室信息"
         data = ChatRoomApi.api_data_048
@@ -1337,7 +1383,7 @@ class TestChatRoom:
                 raise
 
     # 房主设置麦位锁定/取消
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_048_a(self):
         titel = "房主设置麦位锁定"
         data = ChatRoomApi.api_data_048_a
@@ -1366,7 +1412,7 @@ class TestChatRoom:
                 raise
 
     # 房主给与申请上麦通过
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_049(self):
         time.sleep(3)
         titel = "房主给与申请上麦通过"
@@ -1393,8 +1439,53 @@ class TestChatRoom:
                 logging.exception("检查失败！通过申请后有返回数据！")
                 raise
 
+    # 房主设置麦位闭麦
+    @pytest.mark.all
+    def test_api_049_a(self):
+        time.sleep(3)
+        titel = "房主设置麦位闭麦"
+        logging.info("获取当前聊天室麦位信息情况。。。")
+        data = ChatRoomApi.api_data_040_c
+        response = share_request(titel, data)
+        global chat_item_list
+        chat_item_list = response['ret']['chatroom_mike_array']  # 获取聊天室的麦位信息
+        for item, mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_049_a
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 房主取消麦位闭麦
+    @pytest.mark.all
+    def test_api_049_b(self):
+        time.sleep(3)
+        titel = "房主取消麦位闭麦"
+        for item, mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_049_b
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
     # 房主给与申请上麦驳回
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_050(self):
         titel = "房主给与申请上麦驳回"
         data = ChatRoomApi.api_data_050
@@ -1416,7 +1507,7 @@ class TestChatRoom:
                 raise
 
     # 房主将用户抱下麦
-    @pytest.mark.demo
+    @pytest.mark.all
     def test_api_051(self):
         time.sleep(3)
         titel = "房主将用户抱下麦"
@@ -1450,8 +1541,306 @@ class TestChatRoom:
                 logging.exception("检查失败！通过申请后有返回数据！")
                 raise
 
+    # 房主对用户设置禁言
+    @pytest.mark.all
+    def test_api_052(self):
+        titel = "房主对用户设置禁言"
+        data = ChatRoomApi.api_data_052
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
 
+    # 房主对用户取消禁言
+    @pytest.mark.all
+    def test_api_053(self):
+        titel = "房主对用户取消禁言"
+        data = ChatRoomApi.api_data_053
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
 
+    # 房主设置聊天室禁言
+    @pytest.mark.demo
+    def test_api_053_a(self):
+        titel = "房主设置聊天室禁言"
+        data = ChatRoomApi.api_data_053_a
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 房主取消聊天室禁言
+    @pytest.mark.demo
+    def test_api_053_b(self):
+        titel = "房主取消聊天室禁言"
+        data = ChatRoomApi.api_data_053_b
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # ========================    主持相关    =================================
+
+    # 主持清空聊天室麦位宠爱值
+    @pytest.mark.demo
+    def test_api_054(self):
+        titel = "设置用户A为主持"
+        data = ChatRoomApi.api_data_045_b
+        data['parame']['user_id'] = user_A_udid
+        response = share_request(titel, data)       # 设置用户A为主持
+
+        titel = "用户A登录"
+        data = ChatRoomApi.api_data_040_a
+        response = share_request(titel, data)
+        global TOKEN, KEYS
+        TOKEN = response["ret"]["token"]  # 获取登录的token
+        KEYS = response["ret"]["key"]
+
+        titel = "主持清空聊天室麦位宠爱值"
+        data = ChatRoomApi.api_data_054
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持给申请上麦用户审核通过
+    @pytest.mark.demo
+    def test_api_055(self):
+        titel = "获取聊天室当前麦位申请列表"
+        data = ChatRoomApi.api_data_044
+        response = share_request(titel, data)
+        global APPLY_MIKE_USER_list
+        APPLY_MIKE_USER_list = response['ret']['data']
+        logging.info("检查成功，当前房间申请上麦人数为 {}。".format(len(APPLY_MIKE_USER_list)))
+
+        titel = "主持给与申请上麦通过"
+        data = ChatRoomApi.api_data_055
+        logging.info("获取到当前聊天室中麦位申请列表信息如下：")
+        logging.info(  APPLY_MIKE_USER_list )
+        data['parame']['chatroom_mike_apply_id'] = APPLY_MIKE_USER_list[0]['id']
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：通过申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                global BY_MIC_ID, MIC_USER_ID
+                BY_MIC_ID = response['ret']['id']
+                MIC_USER_ID = response['ret']['user_id']
+                logging.info("检查成功，通过申请后有返回数据")
+            except:
+                logging.exception("检查失败！通过申请后有返回数据！")
+                raise
+
+    # 主持设置麦位锁定/取消
+    @pytest.mark.demo
+    def test_api_056(self):
+        titel = "主持设置麦位锁定"
+
+        logging.info("获取当前聊天室麦位信息情况。。。")
+        data = ChatRoomApi.api_data_040_c
+        response = share_request(titel, data)
+        global chat_item_list
+        chat_item_list = response['ret']['chatroom_mike_array']  # 获取聊天室的麦位信息
+        for item, mic in enumerate(chat_item_list):
+            if mic['is_used'] == 0:       # 获取空麦位
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_056
+        logging.info("获取到当前聊天室中麦位信息如下：")
+        logging.info(chat_item_list)
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            time.sleep(3)
+            titel = "主持设置麦位锁定取消"
+            data = ChatRoomApi.api_data_056_a
+            data['parame']['chatroom_mike_id'] = mic_id
+            response = share_request(titel, data)
+            try:
+                assert response['code'] == data["expect"]
+                logging.info("code断言成功")
+            except:
+                logging.exception("code断言失败了！")
+                raise
+
+    # 主持设置麦位闭麦
+    @pytest.mark.demo
+    def test_api_057(self):
+        time.sleep(3)
+        titel = "主持设置麦位闭麦"
+        for item, mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:       # 获取麦上有用户的麦位信息
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_057
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持取消麦位闭麦
+    @pytest.mark.demo
+    def test_api_058(self):
+        time.sleep(3)
+        titel = "主持取消麦位闭麦"
+        for item, mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_058
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持给与申请上麦驳回
+    @pytest.mark.demo
+    def test_api_059(self):
+        titel = "主持给与申请上麦驳回"
+        data = ChatRoomApi.api_data_059
+        data['parame']['chatroom_mike_apply_id'] = APPLY_MIKE_USER_list[1]['id']
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：驳回申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                logging.info("检查成功，驳回申请后有返回数据")
+            except:
+                logging.exception("检查失败！驳回申请后有返回数据！")
+                raise
+
+    # 主持将用户抱下麦
+    @pytest.mark.demo
+    def test_api_060(self):
+        time.sleep(3)
+        titel = "主持将用户抱下麦"
+        logging.info("获取当前聊天室麦位信息情况。。。")
+        data = ChatRoomApi.api_data_040_c
+        response = share_request(titel, data)
+        global chat_item_list
+        chat_item_list = response['ret']['chatroom_mike_array']  # 获取聊天室的麦位信息
+        for item,mic in enumerate(chat_item_list):
+            if mic['is_used'] == 1:
+                mic_id = mic['id']
+                user_id = mic['user_id']
+                break
+        data = ChatRoomApi.api_data_060
+        logging.info("获取到当前聊天室中麦上有用户的麦位id及user_id分别为：{}，{}".format(mic_id, user_id))
+        data['parame']['user_id'] = user_id
+        data['parame']['chatroom_mike_id'] = mic_id
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+        else:
+            logging.info("检查②：通过申请后返回数据")
+            try:
+                assert len(response['ret']) > 0
+                logging.info("检查成功，通过申请后有返回数据")
+            except:
+                logging.exception("检查失败！通过申请后有返回数据！")
+                raise
+
+    # 主持对用户设置禁言
+    @pytest.mark.demo
+    def test_api_061(self):
+        titel = "主持对用户设置禁言"
+        data = ChatRoomApi.api_data_061
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持对用户取消禁言
+    @pytest.mark.demo
+    def test_api_062(self):
+        titel = "主持对用户取消禁言"
+        data = ChatRoomApi.api_data_062
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持设置聊天室禁言
+    @pytest.mark.demo
+    def test_api_063(self):
+        titel = "主持设置聊天室禁言"
+        data = ChatRoomApi.api_data_063
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
+
+    # 主持取消聊天室禁言
+    @pytest.mark.demo
+    def test_api_064(self):
+        titel = "主持取消聊天室禁言"
+        data = ChatRoomApi.api_data_064
+        response = share_request(titel, data)
+        try:
+            assert response['code'] == data["expect"]
+            logging.info("code断言成功")
+        except:
+            logging.exception("code断言失败了！")
+            raise
 
 
 
@@ -1468,6 +1857,7 @@ class TestChatRoom:
 
 
 # 礼物
+@pytest.mark.gift
 class TestGift:
 
     # 获取礼物列表
@@ -1711,7 +2101,7 @@ class TestGift:
     # ==================   聊天室送礼物  =======================
 
     # 聊天室送钻石礼物(正确流)
-    @pytest.mark.ytt
+    @pytest.mark.all
     @pytest.mark.parametrize("data_api", GiftApi.api_data_061_c)
     def test_api_061(self, data_api):
         titel = "聊天室送钻石礼物(正确流)"
@@ -2137,6 +2527,7 @@ class TestSkillApi:
                 raise
 
 # 陪玩订单相关
+@pytest.mark.play
 class TestOrderApi:
 
     @pytest.mark.all
@@ -2162,6 +2553,7 @@ class TestOrderApi:
                 logging.exception("返回陪玩列表数据为空或异常！")
                 raise
 
+    @pytest.mark.ytt
     @pytest.mark.all
     # 用户提交订单（正确流）
     def test_order_api_003(self):
@@ -2388,7 +2780,7 @@ class TestOrderApi:
             response = player_share_request_data(titel, data)
             Rear_PL_GB_Amount = response['ret']["user_wallet_frog_coin_income"]["valid_value"]  # 订单确认后大神的呱币收入
             try:
-                assert ORDER_AMOUNT * 0.8 + float(PL_GB_Amount) == float(Rear_PL_GB_Amount)
+                assert ORDER_AMOUNT * 0.9 + float(PL_GB_Amount) == float(Rear_PL_GB_Amount)
                 logging.info("检查成功。大神收入到账准确，明细：下单前呱币收入为 {}，订单金额为 {}，订单确认后呱币收入为 {}".format(PL_GB_Amount,ORDER_AMOUNT,Rear_PL_GB_Amount))
             except:
                 logging.exception("检查失败，大神到账呱币不准确或异常！")

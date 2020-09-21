@@ -39,12 +39,16 @@ class ApiRequest:
         if Method.upper() == "GET":
             try:
                 response=requests.get(URL, headers=header, params=Param)
+                time_data = response.elapsed.total_seconds()
+                logging.info("本次get请求响应时间为：{}".format(time_data))
             except Exception as e:
                 logging.exception("get请求出错：{0}".format(e))
                 raise e
         elif Method.upper() == "POST":
             try:
                 response=requests.post(URL,headers=header,json=Param,verify=False)
+                time_data = response.elapsed.total_seconds()
+                logging.info("本次post请求响应时间为：{}".format(time_data))
                 logging.info("post接口请求成功！")
             except Exception as e:
                 logging.exception("post请求出错：{0}".format(e))
@@ -61,12 +65,16 @@ class ApiRequest:
         if Method.upper() == "GET":
             try:
                 response=requests.get(URL, headers=header, params=Param)
+                time_data = response.elapsed.total_seconds()
+                logging.info("本次get请求响应时间为：{}".format(time_data))
             except Exception as e:
                 logging.exception("get请求出错：{0}".format(e))
                 raise e
         elif Method.upper() == "POST":
             try:
                 response=requests.post(URL,data=Param,headers=header,verify=False)
+                time_data = response.elapsed.total_seconds()
+                logging.info("本次post请求响应时间为：{}".format(time_data))
                 logging.info("post接口请求成功！")
             except Exception as e:
                 logging.exception("post请求出错：{0}".format(e))
